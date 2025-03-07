@@ -1,15 +1,20 @@
-package Controller; // Ajusta el paquete según tu estructura
+package Controller;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.RotateTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import application.ConvertidorLatex;
 
 public class MenuController {
 
@@ -22,18 +27,27 @@ public class MenuController {
     @FXML
     private VBox methodsSubMenu, solutionsSubMenu;
 
+    @FXML
+    private TextField equationInput;
+
+    @FXML
+    private WebView webView;
+
     private FadeTransition currentFadeOut;
     private boolean isMaximized = false;
+    private WebEngine webEngine;
 
     @FXML
     public void initialize() {
         if (navBar == null || methodsButton == null || solutionsButton == null ||
                 methodsSubMenu == null || solutionsSubMenu == null ||
-                minimizeButton == null || maximizeButton == null || exitButton == null) {
+                minimizeButton == null || maximizeButton == null || exitButton == null ||
+                equationInput == null || webView == null) {
             System.err.println("Error: Algún elemento no está inicializado.");
             return;
         }
 
+        // Configuración de la barra de navegación
         TranslateTransition slideIn = new TranslateTransition(Duration.millis(600), navBar);
         slideIn.setFromY(-60);
         slideIn.setToY(0);
@@ -69,7 +83,6 @@ public class MenuController {
             fadeBack.play();
         });
 
-        // Configurar botón Minimizar
         minimizeButton.setOnMouseClicked(event -> {
             Stage stage = (Stage) navBar.getScene().getWindow();
             RotateTransition rotate = new RotateTransition(Duration.millis(200), minimizeButton);
@@ -80,7 +93,6 @@ public class MenuController {
             rotate.play();
         });
 
-        // Configurar botón Maximizar/Restaurar
         maximizeButton.setOnMouseClicked(event -> {
             Stage stage = (Stage) navBar.getScene().getWindow();
             ScaleTransition scale = new ScaleTransition(Duration.millis(200), maximizeButton);
@@ -91,7 +103,7 @@ public class MenuController {
             scale.setOnFinished(e -> {
                 if (isMaximized) {
                     stage.setMaximized(false);
-                    stage.setWidth(800); // Tamaño restaurado más grande
+                    stage.setWidth(800);
                     stage.setHeight(600);
                     isMaximized = false;
                 } else {
@@ -102,15 +114,37 @@ public class MenuController {
             scale.play();
         });
 
-        // Configurar botón Salir (nuevo estilo)
         exitButton.setOnMouseClicked(event -> {
             RotateTransition rotate = new RotateTransition(Duration.millis(200), exitButton);
-            rotate.setByAngle(45); // Giro diferente para distinguirlo
+            rotate.setByAngle(45);
             rotate.setCycleCount(2);
             rotate.setAutoReverse(true);
             rotate.setOnFinished(e -> System.exit(0));
             rotate.play();
         });
+
+        // Configuración del WebView con MathJax (desde MathController)
+        webEngine = webView.getEngine();
+        String mathJaxHtml = "<html>\n" +
+                "<head>\n" +
+                "    <script type=\"text/javascript\" async\n" +
+                "      src=\"https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS_HTML\">\n" +
+                "    </script>\n" +
+                "</head>\n" +
+                "<body>\n" +
+                "    <div id=\"math\"></div>\n" +
+                "    <script>\n" +
+                "        function updateEquation(latex) {\n" +
+                "            document.getElementById(\"math\").innerHTML = \"$$\" + latex + \"$$\";\n" +
+                "            MathJax.Hub.Queue([\"Typeset\", MathJax.Hub]);\n" +
+                "        }\n" +
+                "    </script>\n" +
+                "</body>\n" +
+                "</html>";
+        webEngine.loadContent(mathJaxHtml);
+
+        // Actualizar ecuación al presionar Enter
+        equationInput.setOnAction(e -> updateEquation());
     }
 
     private void setupButtonAnimation(Button button, VBox subMenu) {
@@ -195,11 +229,90 @@ public class MenuController {
     }
 
     private boolean isAnyButtonHovered() {
-        return methodsButton.isHover() || solutionsButton.isHover() ||
-                graphButton.isHover();
+        return methodsButton.isHover() || solutionsButton.isHover() || graphButton.isHover();
     }
 
     public HBox getNavBar() {
         return navBar;
+    }
+
+    // Métodos para insertar símbolos (ajustados para LaTeX y MathEclipse)
+    @FXML
+    private void insertExponent() {
+        equationInput.insertText(equationInput.getCaretPosition(), "^2");
+    }
+
+    @FXML
+    private void insertSqrt() {
+        equationInput.insertText(equationInput.getCaretPosition(), "sqrt(");
+    }
+
+    @FXML
+    private void insertPi() {
+        equationInput.insertText(equationInput.getCaretPosition(), "π");
+    }
+
+    @FXML
+    private void insertSin() {
+        equationInput.insertText(equationInput.getCaretPosition(), "sin(");
+    }
+
+    @FXML
+    private void insertCos() {
+        equationInput.insertText(equationInput.getCaretPosition(), "cos(");
+    }
+
+    @FXML
+    private void insertEqual() {
+        equationInput.insertText(equationInput.getCaretPosition(), " = ");
+    }
+
+    @FXML
+    private void insertAlpha() {
+        equationInput.insertText(equationInput.getCaretPosition(), "\\alpha");
+    }
+
+    @FXML
+    private void insertBeta() {
+        equationInput.insertText(equationInput.getCaretPosition(), "\\beta");
+    }
+
+    @FXML
+    private void insertGamma() {
+        equationInput.insertText(equationInput.getCaretPosition(), "\\gamma");
+    }
+
+    @FXML
+    private void insertTheta() {
+        equationInput.insertText(equationInput.getCaretPosition(), "\\theta");
+    }
+
+    @FXML
+    private void insertIntegral() {
+        equationInput.insertText(equationInput.getCaretPosition(), "\\int_{}^{}");
+    }
+
+    @FXML
+    private void insertSum() {
+        equationInput.insertText(equationInput.getCaretPosition(), "\\sum_{}^{}");
+    }
+
+    @FXML
+    private void insertInfinity() {
+        equationInput.insertText(equationInput.getCaretPosition(), "\\infty");
+    }
+
+    @FXML
+    private void renderEquation() {
+        updateEquation();
+    }
+
+    private void updateEquation() {
+        String userInput = equationInput.getText();
+        String latex = ConvertidorLatex.toLatex(userInput); // Convierte a LaTeX con MathEclipse
+
+        Platform.runLater(() ->
+                webEngine.executeScript("updateEquation('" + latex.replace("\\", "\\\\") + "');")
+        );
     }
 }

@@ -6,7 +6,7 @@
     -fx-border-color: #415a77;
     -fx-border-width: 2px;
     -fx-padding: 10px 20px;
-    -fx-spacing: 15px; /* Espaciado general entre los HBox internos */
+    -fx-spacing: 15px;
     -fx-alignment: center-left;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.7), 20, 0, 0, 5);
     -fx-pref-height: 60px;
@@ -25,7 +25,7 @@
     -fx-border-color: rgba(65, 90, 119, 0.5);
     -fx-border-width: 1px;
     -fx-effect: innershadow(gaussian, rgba(0, 0, 0, 0.4), 5, 0, 0, 2);
-    -fx-margin: 0 10 0 0; /* Margen derecho para más separación */
+    -fx-margin: 0 10 0 0;
 }
 
 .nav-button:hover {
@@ -36,7 +36,7 @@
     -fx-effect: dropshadow(gaussian, #00d4ff, 15, 0.7, 0, 0);
 }
 
-/* Estilos para los botones de control (minimizar, maximizar, salir) */
+/* Estilos para los botones de control */
 .control-button {
     -fx-background-color: rgba(27, 38, 59, 0.8);
     -fx-text-fill: #e0e1dd;
@@ -57,6 +57,40 @@
     -fx-background-color: #415a77;
     -fx-text-fill: #00d4ff;
     -fx-effect: dropshadow(gaussian, #00d4ff, 10, 0.7, 0, 0);
+}
+
+/* Estilos para los botones matemáticos */
+.math-button {
+    -fx-background-color: rgba(27, 38, 59, 0.9);
+    -fx-text-fill: #e0e1dd;
+    -fx-font-size: 14px;
+    -fx-font-family: "Arial";
+    -fx-padding: 8px 15px;
+    -fx-cursor: hand;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+    -fx-border-color: rgba(65, 90, 119, 0.7);
+    -fx-border-width: 1px;
+    -fx-effect: innershadow(gaussian, rgba(0, 0, 0, 0.3), 3, 0, 0, 1);
+}
+
+.math-button:hover {
+    -fx-background-color: #778da9;
+    -fx-text-fill: #00d4ff;
+    -fx-effect: dropshadow(gaussian, #00d4ff, 8, 0.5, 0, 0);
+}
+
+/* Estilos para el TextField */
+#equationInput {
+    -fx-background-color: #1b263b;
+    -fx-text-fill: #e0e1dd;
+    -fx-prompt-text-fill: #778da9;
+    -fx-font-size: 16px;
+    -fx-padding: 10px;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+    -fx-border-color: #415a77;
+    -fx-border-width: 1px;
 }
 
 /* Estilos para los submenús */

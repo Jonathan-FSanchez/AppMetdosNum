@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.web.WebView?>
 
 <BorderPane fx:controller="Controller.MenuController"
             xmlns:fx="http://javafx.com/fxml"
@@ -21,6 +22,29 @@
         </HBox>
     </top>
 
+    <center>
+        <VBox spacing="20" alignment="CENTER" VBox.vgrow="ALWAYS">
+            <TextField fx:id="equationInput" promptText="Ingresa la ecuación en LaTeX" prefWidth="200.0"/>
+            <WebView fx:id="webView" prefHeight="150.0" prefWidth="200.0"/> <!-- Tamaño más pequeño -->
+            <HBox spacing="15" alignment="CENTER">
+                <Button text="x²" onAction="#insertExponent" styleClass="math-button"/>
+                <Button text="√" onAction="#insertSqrt" styleClass="math-button"/>
+                <Button text="π" onAction="#insertPi" styleClass="math-button"/>
+                <Button text="sin" onAction="#insertSin" styleClass="math-button"/>
+                <Button text="cos" onAction="#insertCos" styleClass="math-button"/>
+                <Button text="=" onAction="#insertEqual" styleClass="math-button"/>
+                <Button text="α" onAction="#insertAlpha" styleClass="math-button"/>
+                <Button text="β" onAction="#insertBeta" styleClass="math-button"/>
+                <Button text="γ" onAction="#insertGamma" styleClass="math-button"/>
+                <Button text="θ" onAction="#insertTheta" styleClass="math-button"/>
+                <Button text="∫" onAction="#insertIntegral" styleClass="math-button"/>
+                <Button text="∑" onAction="#insertSum" styleClass="math-button"/>
+                <Button text="∞" onAction="#insertInfinity" styleClass="math-button"/>
+                <Button text="Renderizar" onAction="#renderEquation" styleClass="math-button"/>
+            </HBox>
+        </VBox>
+    </center>
+
     <children>
         <VBox fx:id="methodsSubMenu" styleClass="sub-menu" visible="false" managed="false">
             <Button text="Método 1" styleClass="sub-menu-item"/>
@@ -33,8 +57,4 @@
             <Button text="Solución C" styleClass="sub-menu-item"/>
         </VBox>
     </children>
-
-    <center>
-        <VBox alignment="CENTER" spacing="10.0" VBox.vgrow="ALWAYS"/>
-    </center>
 </BorderPane>
