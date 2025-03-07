@@ -1,19 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.layout.VBox?>
 
-<?import java.net.URL?>
-<VBox xmlns:fx="http://javafx.com/fxml" alignment="CENTER" spacing="10.0">
-    <stylesheets>
-        <URL value="@/CSS/menu.css"/> <!-- Ajusta la ruta según corresponda -->
-    </stylesheets>
+<BorderPane fx:controller="Controller.MenuController"
+            xmlns:fx="http://javafx.com/fxml"
+            prefWidth="800.0" prefHeight="600.0" styleClass="border-pane">
+
+    <top>
+        <HBox fx:id="navBar" styleClass="nav-bar" prefHeight="60.0" alignment="CENTER_LEFT">
+            <HBox alignment="CENTER_LEFT" HBox.hgrow="NEVER" spacing="30.0">
+                <Button fx:id="methodsButton" text="Métodos" styleClass="nav-button"/>
+                <Button fx:id="solutionsButton" text="Soluciones" styleClass="nav-button"/>
+                <Button fx:id="graphButton" text="Graficar" styleClass="nav-button"/>
+            </HBox>
+            <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS" spacing="10.0">
+                <Button fx:id="minimizeButton" text="-" styleClass="control-button"/>
+                <Button fx:id="maximizeButton" text="□" styleClass="control-button"/>
+                <Button fx:id="exitButton" text="×" styleClass="control-button"/>
+            </HBox>
+        </HBox>
+    </top>
+
     <children>
-        <Button text="Botón Rojo"/>
+        <VBox fx:id="methodsSubMenu" styleClass="sub-menu" visible="false" managed="false">
+            <Button text="Método 1" styleClass="sub-menu-item"/>
+            <Button text="Método 2" styleClass="sub-menu-item"/>
+            <Button text="Método 3" styleClass="sub-menu-item"/>
+        </VBox>
+        <VBox fx:id="solutionsSubMenu" styleClass="sub-menu" visible="false" managed="false">
+            <Button text="Solución A" styleClass="sub-menu-item"/>
+            <Button text="Solución B" styleClass="sub-menu-item"/>
+            <Button text="Solución C" styleClass="sub-menu-item"/>
+        </VBox>
     </children>
-</VBox>
 
+    <center>
+        <VBox alignment="CENTER" spacing="10.0" VBox.vgrow="ALWAYS"/>
+    </center>
+</BorderPane>
