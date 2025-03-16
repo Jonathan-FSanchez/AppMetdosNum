@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Point3D?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<?import javafx.scene.web.WebView?>
+<?import javafx.embed.swing.SwingNode?>
+<?import javafx.scene.layout.Pane?>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="803.0" prefWidth="1121.0" styleClass="background-image" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.CtrlMenu">
+   <top>
+      <HBox alignment="CENTER" prefHeight="37.0" prefWidth="841.0" styleClass="top-bar" stylesheets="@styles.css" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="btnMetodos" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" stylesheets="@styles.css" text="Metodos" textFill="WHITE">
+               <font>
+                  <Font name="AppleMyungjo Regular" size="13.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+               <styleClass>
+                  <String fx:value="menu-button" />
+                  <String fx:value="popup" />
+                  <String fx:value="button-custom" />
+               </styleClass>
+            </Button>
+            <Button fx:id="btnSoluciones" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" stylesheets="@styles.css" text="Soluciones" textFill="WHITE">
+               <font>
+                  <Font name="AppleMyungjo Regular" size="13.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+               <styleClass>
+                  <String fx:value="context-menu" />
+                  <String fx:value="popup" />
+                  <String fx:value="button-custom" />
+               </styleClass>
+            </Button>
+            <Button fx:id="btnGraficas" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" styleClass="button-custom" stylesheets="@styles.css" text="Graficas" textFill="WHITE">
+               <font>
+                  <Font name="AppleMyungjo Regular" size="13.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Button>
+            <HBox prefHeight="37.0" prefWidth="624.0" />
+            <Button fx:id="btnVMain" alignment="CENTER" mnemonicParsing="false" onAction="#btnVMain" prefHeight="20.0" prefWidth="88.0" styleClass="button-custom" stylesheets="@styles.css" text="View Main" textFill="WHITE">
+               <font>
+                  <Font name="AppleMyungjo Regular" size="13.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Button>
+            <Separator maxHeight="25.0" minHeight="25.0" opacity="0.51" orientation="VERTICAL" prefHeight="25.0" />
+            <Button fx:id="btnExit" alignment="CENTER" mnemonicParsing="false" onAction="#btnExit" prefHeight="27.0" prefWidth="49.0" styleClass="button-custom" stylesheets="@styles.css" text="Exit" textFill="WHITE">
+               <font>
+                  <Font name="AppleMyungjo Regular" size="13.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Button>
+         </children></HBox>
+   </top>
+   <opaqueInsets>
+      <Insets />
+   </opaqueInsets>
+   <center>
+      <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+         <children>
+            <ImageView fitHeight="222.0" fitWidth="627.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@img/tittle.png" />
+               </image>
+            </ImageView>
+            <HBox alignment="CENTER" prefHeight="90.0" prefWidth="1121.0">
+               <children>
+                  <TextField fx:id="txtFunction" prefHeight="40.0" prefWidth="500.0" promptText="Inserte la funcion aqui" styleClass="text1-custom" stylesheets="@styles.css">
+                     <HBox.margin>
+                        <Insets top="50.0" />
+                     </HBox.margin>
+                  </TextField>
+                  <Button mnemonicParsing="false" onAction="#confirmFunction" prefHeight="39.0" prefWidth="100.0" styleClass="button1-custom" stylesheets="@styles.css" text="ADD" textFill="#eeeaea" focusTraversable="false">
+                     <HBox.margin>
+                        <Insets top="50.0" />
+                     </HBox.margin>
+                     <cursor>
+                        <Cursor fx:constant="HAND" />
+                     </cursor>
+                  </Button>
+               </children>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="1121.0">
+               <children>
+                  <Pane prefHeight="80.0" prefWidth="600.0" style="-fx-background-color: white; -fx-border-width: 10px;">
+                     <children>
+                        <SwingNode fx:id="latexRender" />
+                     </children>
+                  </Pane>
+               </children>
+            </HBox>
+            <HBox fx:id="symbolButtons" alignment="CENTER" spacing="5" prefHeight="40.0" prefWidth="600.0" />
+         </children>
+      </VBox>
+   </center>
+</BorderPane>

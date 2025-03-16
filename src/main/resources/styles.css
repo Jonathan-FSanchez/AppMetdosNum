@@ -1,0 +1,123 @@
+.background-image{
+    -fx-background-image: url("img/Métodos.png");
+    -fx-background-repeat: stretch;
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+}
+.top-bar{
+    -fx-background-color: #030321;
+}
+.transparent{
+    -fx-background-color: transparent;
+}
+.button1-custom {
+    -fx-background-color: #7C638A; /* bg-rose-400 */
+    -fx-background-radius: 8px; /* rounded-md */
+}
+.text1-custom {
+    -fx-background-radius: 13px;
+}
+
+/* SCENE: METODO BISECCION*/
+.backgroundMBis-image{
+    -fx-background-image: url("img/background.png");
+    -fx-background-repeat: stretch;
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+}
+/*
+.slide-bar{
+    -fx-background-color: #462258;
+    -fx-effect: dropshadow(one-pass-box, rgb(70, 34, 88, 2),  30, 0.1,  6, 0);
+}
+.button-off{
+    -fx-background-color: #462258;
+}
+.button-on{
+    -fx-background-color: #321746;
+}
+.separator-btn{
+    -fx-background-color: #6E497E;
+} */
+.shadow {
+    -fx-effect: dropshadow(one-pass-box, rgba(255, 255, 255, 4), 60, 0.5, 0, 0);
+}
+
+
+/* Estilo de los botones */
+.button-custom {
+    -fx-z-index: 30; /* z-30 */
+    -fx-background-color: #030227; /* bg-rose-400 */
+    -fx-background-radius: 8px; /* rounded-md */
+    -fx-text-fill: #ffffff; /* text-white */
+    -fx-transition: all 0.7s ease; /* transition-all duration */
+}
+
+.button-custom:hover {
+    -fx-background-color: #0A0629; /* Un tono más claro para simular el hover */
+    /* Simulamos el efecto de expansión del fondo (after:bg-rose-800) */
+    -fx-effect: innershadow(gaussian, rgba(59, 27, 50, 0.67), 5, 0.4, 0, 0);
+}
+
+/* Estilo del TextField */
+.custom-textfield {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+    -fx-border-color: #4A3A9B;
+    -fx-border-width: 2px;
+    -fx-padding: 10px;
+    -fx-font-size: 16px;
+}
+
+/* Estilo del ContextMenu */
+/* Estilo del Popup (especificidad mejorada para el VBox) */
+.popup .context-menu {
+    -fx-background-color: #030227; /* Fondo oscuro púrpura */
+    -fx-background-radius: 8px; /* Bordes redondeados */
+    -fx-border-color: rgba(70, 32, 122, 0.69); /* Borde en tono púrpura más claro */
+    -fx-border-width: 2px;
+    -fx-border-radius: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 6, 0.5, 0, 0); /* Sombra suave */
+}
+
+/* Estilo de los ítems dentro del Popup (Labels, especificidad mejorada) */
+.popup .context-menu .label {
+    -fx-text-fill: #ffffff; /* Texto blanco */
+    -fx-font-family: "Arial";
+    -fx-padding: 8px 16px; /* Espaciado interno de cada ítem */
+}
+
+/* Efecto de hover para los ítems del Popup */
+.popup .context-menu .label:hover {
+    -fx-background-color: #4A3A9B; /* Fondo púrpura más claro al hacer hover */
+    -fx-background-radius: 4px;
+}
+
+/* Opcional: Estilo del separador (si lo usas) */
+.popup .context-menu .separator {
+    -fx-background-color: #4A3A9B;
+}
+
+.background-rect-left, .background-rect-right {
+    -fx-body-background-color: white;
+    -fx-border-color: rgba(70, 32, 122, 1); /* Borde en tono púrpura más claro */
+    -fx-arc-width: 20; /* Bordes redondeados */
+    -fx-arc-height: 20;
+}
+.button3-custom {
+    -fx-z-index: 30; /* z-30 */
+    -fx-background-color: #3b1b3d; /* bg-rose-400 */
+    -fx-background-radius: 8px; /* rounded-md */
+}
+
+
+.web-view {
+    -fx-background-color: white;
+    -fx-border-color: gray;
+    -fx-border-width: 1;
+}
+.pane-with-swing {
+    -fx-border-color: red;
+    -fx-border-width: 1px;
+}
