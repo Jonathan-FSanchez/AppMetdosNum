@@ -1,8 +1,13 @@
 package controllers;
 
 import com.example.prueba.ConvertidorLatex;
+import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
+import javafx.animation.ParallelTransition;
+import javafx.animation.RotateTransition;
+import javafx.animation.ScaleTransition;
 import javafx.animation.Timeline;
+import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
@@ -16,6 +21,7 @@ import org.scilab.forge.jlatexmath.TeXConstants;
 import org.scilab.forge.jlatexmath.TeXFormula;
 import org.scilab.forge.jlatexmath.TeXIcon;
 import javafx.embed.swing.SwingNode;
+import javafx.scene.control.Button;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -31,6 +37,11 @@ public class CtrlMenu extends TopBarController {
     @FXML
     void initialize() {
         initializeTopBar();
+        
+        // Añadir clase para animación de aparición
+        if (menuContent != null) {
+            menuContent.getStyleClass().add("menu-content");
+        }
 
         setupLatexRender();
         // Agregar listener para actualizar el renderizado al escribir
@@ -66,6 +77,15 @@ public class CtrlMenu extends TopBarController {
             latexRender.setContent(panel);
             latexRender.setDisable(false); // Deshabilitar foco en el SwingNode
             updateLatexRender(""); // Renderizar texto inicial
+            
+            // Añadir animación de entrada al panel de LaTeX
+            Platform.runLater(() -> {
+                FadeTransition fadeIn = new FadeTransition(Duration.millis(800), latexRender.getParent());
+                fadeIn.setFromValue(0);
+                fadeIn.setToValue(1);
+                fadeIn.setDelay(Duration.millis(200));
+                fadeIn.play();
+            });
         });
     }
 
@@ -108,20 +128,59 @@ public class CtrlMenu extends TopBarController {
 
     private void setupSymbolButtons() {
         String[] symbols = {"√", "π", "sin", "cos", "tan", "e", "∫", "∂", "(", ")", "^"};
-        for (String symbol : symbols) {
-            javafx.scene.control.Button button = new javafx.scene.control.Button(symbol);
+        for (int i = 0; i < symbols.length; i++) {
+            String symbol = symbols[i];
+            Button button = new Button(symbol);
             button.setPrefSize(40, 40);
-            button.setStyle("-fx-background-color: #6a0dad; -fx-text-fill: white; -fx-font-size: 14px;");
+            button.getStyleClass().add("symbol-button");
             button.setFocusTraversable(false); // Deshabilitar que el botón reciba foco
-            button.setOnAction(event -> {
-                String currentText = txtFunction.getText();
-                txtFunction.setText(currentText + symbol);
-                updateLatexRender(currentText + symbol); // Actualizar renderizado
-                Platform.runLater(() -> {
-                    txtFunction.requestFocus(); // Forzar foco
-                    txtFunction.positionCaret(txtFunction.getText().length()); // Mover cursor al final
-                });
+            
+            // Añadir efecto de animación con retraso para entrada escalonada
+            final int index = i;
+            Platform.runLater(() -> {
+                // Inicialmente fuera de vista
+                button.setTranslateY(50);
+                button.setOpacity(0);
+                
+                // Animación de entrada
+                TranslateTransition translateIn = new TranslateTransition(Duration.millis(500), button);
+                translateIn.setFromY(50);
+                translateIn.setToY(0);
+                
+                FadeTransition fadeIn = new FadeTransition(Duration.millis(600), button);
+                fadeIn.setFromValue(0);
+                fadeIn.setToValue(1);
+                
+                ParallelTransition parallelTransition = new ParallelTransition(translateIn, fadeIn);
+                parallelTransition.setDelay(Duration.millis(100 + (index * 60))); // Retraso escalonado
+                parallelTransition.play();
             });
+            
+            button.setOnAction(event -> {
+                // Animación de clic
+                ScaleTransition scaleDown = new ScaleTransition(Duration.millis(100), button);
+                scaleDown.setToX(0.8);
+                scaleDown.setToY(0.8);
+                
+                ScaleTransition scaleUp = new ScaleTransition(Duration.millis(100), button);
+                scaleUp.setToX(1.0);
+                scaleUp.setToY(1.0);
+                
+                scaleDown.setOnFinished(e -> {
+                    String currentText = txtFunction.getText();
+                    txtFunction.setText(currentText + symbol);
+                    updateLatexRender(currentText + symbol); // Actualizar renderizado
+                    scaleUp.play();
+                    
+                    Platform.runLater(() -> {
+                        txtFunction.requestFocus(); // Forzar foco
+                        txtFunction.positionCaret(txtFunction.getText().length()); // Mover cursor al final
+                    });
+                });
+                
+                scaleDown.play();
+            });
+            
             symbolButtons.getChildren().add(button);
         }
     }
@@ -130,12 +189,48 @@ public class CtrlMenu extends TopBarController {
     void confirmFunction() {
         String function = txtFunction.getText().trim();
         if (!function.isEmpty()) {
-            String latexFunction = ConvertidorLatex.toLatex(function);
-            System.out.println("Función en LaTeX: " + latexFunction);
-            App.app.setFunction(function);
-            System.out.println("Función guardada en App: " + App.app.getFunction());
+            // Animación para confirmación
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(200), latexRender.getParent());
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.7);
+            
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(300), latexRender.getParent());
+            fadeIn.setFromValue(0.7);
+            fadeIn.setToValue(1.0);
+            
+            ScaleTransition scaleUp = new ScaleTransition(Duration.millis(200), latexRender.getParent());
+            scaleUp.setToX(1.05);
+            scaleUp.setToY(1.05);
+            
+            ScaleTransition scaleNormal = new ScaleTransition(Duration.millis(200), latexRender.getParent());
+            scaleNormal.setToX(1.0);
+            scaleNormal.setToY(1.0);
+            
+            ParallelTransition parallelOut = new ParallelTransition(fadeOut, scaleUp);
+            ParallelTransition parallelIn = new ParallelTransition(fadeIn, scaleNormal);
+            
+            parallelOut.setOnFinished(e -> {
+                String latexFunction = ConvertidorLatex.toLatex(function);
+                System.out.println("Función en LaTeX: " + latexFunction);
+                App.app.setFunction(function);
+                System.out.println("Función guardada en App: " + App.app.getFunction());
+                parallelIn.play();
+            });
+            
+            parallelOut.play();
         } else {
             System.out.println("Por favor, ingresa una función.");
+            
+            // Animación de aviso de error
+            Timeline shakingAnimation = new Timeline(
+                new KeyFrame(Duration.millis(0), evt -> txtFunction.setTranslateX(0)),
+                new KeyFrame(Duration.millis(50), evt -> txtFunction.setTranslateX(5)),
+                new KeyFrame(Duration.millis(100), evt -> txtFunction.setTranslateX(-5)),
+                new KeyFrame(Duration.millis(150), evt -> txtFunction.setTranslateX(5)),
+                new KeyFrame(Duration.millis(200), evt -> txtFunction.setTranslateX(-5)),
+                new KeyFrame(Duration.millis(250), evt -> txtFunction.setTranslateX(0))
+            );
+            shakingAnimation.play();
         }
     }
 }

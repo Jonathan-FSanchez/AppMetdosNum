@@ -13,9 +13,25 @@
 .button1-custom {
     -fx-background-color: #7C638A; /* bg-rose-400 */
     -fx-background-radius: 8px; /* rounded-md */
+    -fx-transition: all 0.3s ease-in-out;
 }
+
+.button1-custom:hover {
+    -fx-background-color: #5A4666;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(gaussian, rgba(124, 99, 138, 0.7), 10, 0.5, 0, 0);
+}
+
 .text1-custom {
     -fx-background-radius: 13px;
+    -fx-transition: all 0.3s ease;
+}
+
+.text1-custom:focused {
+    -fx-effect: dropshadow(gaussian, rgba(124, 99, 138, 0.7), 15, 0.5, 0, 0);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
 }
 
 /* SCENE: METODO BISECCION*/
@@ -25,24 +41,10 @@
     -fx-background-size: cover;
     -fx-background-position: center center;
 }
-/*
-.slide-bar{
-    -fx-background-color: #462258;
-    -fx-effect: dropshadow(one-pass-box, rgb(70, 34, 88, 2),  30, 0.1,  6, 0);
-}
-.button-off{
-    -fx-background-color: #462258;
-}
-.button-on{
-    -fx-background-color: #321746;
-}
-.separator-btn{
-    -fx-background-color: #6E497E;
-} */
+
 .shadow {
     -fx-effect: dropshadow(one-pass-box, rgba(255, 255, 255, 4), 60, 0.5, 0, 0);
 }
-
 
 /* Estilo de los botones */
 .button-custom {
@@ -50,13 +52,20 @@
     -fx-background-color: #030227; /* bg-rose-400 */
     -fx-background-radius: 8px; /* rounded-md */
     -fx-text-fill: #ffffff; /* text-white */
-    -fx-transition: all 0.7s ease; /* transition-all duration */
+    -fx-transition: all 0.3s ease-in-out;
 }
 
 .button-custom:hover {
     -fx-background-color: #0A0629; /* Un tono más claro para simular el hover */
-    /* Simulamos el efecto de expansión del fondo (after:bg-rose-800) */
-    -fx-effect: innershadow(gaussian, rgba(59, 27, 50, 0.67), 5, 0.4, 0, 0);
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+    -fx-effect: dropshadow(gaussian, rgba(59, 27, 88, 0.8), 12, 0.7, 0, 0);
+}
+
+.button-custom:pressed {
+    -fx-scale-x: 0.95;
+    -fx-scale-y: 0.95;
+    -fx-background-color: #02011a;
 }
 
 /* Estilo del TextField */
@@ -68,6 +77,13 @@
     -fx-border-width: 2px;
     -fx-padding: 10px;
     -fx-font-size: 16px;
+    -fx-transition: all 0.4s ease;
+}
+
+.custom-textfield:focused {
+    -fx-border-color: #6b55c7;
+    -fx-border-width: 3px;
+    -fx-effect: dropshadow(gaussian, rgba(74, 58, 155, 0.6), 10, 0.6, 0, 0);
 }
 
 /* Estilo del ContextMenu */
@@ -79,6 +95,14 @@
     -fx-border-width: 2px;
     -fx-border-radius: 8px;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 6, 0.5, 0, 0); /* Sombra suave */
+    -fx-opacity: 0;
+    -fx-scale-y: 0.8;
+    -fx-transition: all 0.3s ease-in-out;
+}
+
+.popup.showing .context-menu {
+    -fx-opacity: 1;
+    -fx-scale-y: 1;
 }
 
 /* Estilo de los ítems dentro del Popup (Labels, especificidad mejorada) */
@@ -86,15 +110,18 @@
     -fx-text-fill: #ffffff; /* Texto blanco */
     -fx-font-family: "Arial";
     -fx-padding: 8px 16px; /* Espaciado interno de cada ítem */
+    -fx-transition: all 0.2s ease;
 }
 
 /* Efecto de hover para los ítems del Popup */
 .popup .context-menu .label:hover {
     -fx-background-color: #4A3A9B; /* Fondo púrpura más claro al hacer hover */
     -fx-background-radius: 4px;
+    -fx-translate-x: 5px;
+    -fx-effect: dropshadow(gaussian, rgba(74, 58, 155, 0.8), 8, 0.5, 0, 0);
 }
 
-/* Opcional: Estilo del separador (si lo usas) */
+/* Estilo del separador */
 .popup .context-menu .separator {
     -fx-background-color: #4A3A9B;
 }
@@ -105,19 +132,70 @@
     -fx-arc-width: 20; /* Bordes redondeados */
     -fx-arc-height: 20;
 }
+
 .button3-custom {
     -fx-z-index: 30; /* z-30 */
     -fx-background-color: #3b1b3d; /* bg-rose-400 */
     -fx-background-radius: 8px; /* rounded-md */
+    -fx-transition: all 0.3s ease-in-out;
 }
 
+.button3-custom:hover {
+    -fx-background-color: #4d2550;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(gaussian, rgba(59, 27, 61, 0.7), 8, 0.5, 0, 0);
+}
 
 .web-view {
     -fx-background-color: white;
     -fx-border-color: gray;
     -fx-border-width: 1;
+    -fx-transition: all 0.4s ease;
 }
+
+.web-view:hover {
+    -fx-effect: dropshadow(gaussian, rgba(120, 120, 120, 0.5), 10, 0.4, 0, 0);
+}
+
 .pane-with-swing {
     -fx-border-color: red;
     -fx-border-width: 1px;
+}
+
+/* Estilo específico para botones de símbolos matemáticos */
+.symbol-button {
+    -fx-background-color: #6a0dad; 
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-background-radius: 20px;
+    -fx-transition: all 0.25s ease-in-out;
+}
+
+.symbol-button:hover {
+    -fx-background-color: #8929d4;
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+    -fx-rotate: 5;
+    -fx-effect: dropshadow(gaussian, rgba(106, 13, 173, 0.7), 10, 0.6, 0, 0);
+}
+
+.symbol-button:pressed {
+    -fx-scale-x: 0.9;
+    -fx-scale-y: 0.9;
+    -fx-rotate: 0;
+}
+
+/* Animación para el panel principal */
+@keyframes fadeIn {
+    from {
+        -fx-opacity: 0;
+    }
+    to {
+        -fx-opacity: 1;
+    }
+}
+
+.menu-content {
+    -fx-animation: fadeIn 1s ease-in-out;
 }
