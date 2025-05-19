@@ -47,7 +47,7 @@ public abstract class TopBarController {
         setupButtonAnimations(btnGraficas);
         setupButtonAnimations(btnVMain);
         setupButtonAnimations(btnExit);
-        
+
         popup = new Popup();
         subPopup = new Popup();
 
@@ -69,7 +69,7 @@ public abstract class TopBarController {
         btnVMain.setOnAction(this::btnVMain);
         btnExit.setOnAction(this::btnExit);
     }
-    
+
     private void setupButtonAnimations(Button button) {
         button.setOnMouseEntered(event -> {
             ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(150), button);
@@ -77,21 +77,21 @@ public abstract class TopBarController {
             scaleTransition.setToY(1.1);
             scaleTransition.play();
         });
-        
+
         button.setOnMouseExited(event -> {
             ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(150), button);
             scaleTransition.setToX(1.0);
             scaleTransition.setToY(1.0);
             scaleTransition.play();
         });
-        
+
         button.setOnMousePressed(event -> {
             ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(100), button);
             scaleTransition.setToX(0.95);
             scaleTransition.setToY(0.95);
             scaleTransition.play();
         });
-        
+
         button.setOnMouseReleased(event -> {
             ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(100), button);
             scaleTransition.setToX(1.1);
@@ -129,7 +129,7 @@ public abstract class TopBarController {
             item4.getStyleClass().add("menu-item");
             item5.getStyleClass().add("menu-item");
             item6.getStyleClass().add("menu-item");
-            
+
             // Animación para los elementos del menú
             setupMenuItemAnimation(item1, 0);
             setupMenuItemAnimation(item2, 1);
@@ -149,7 +149,7 @@ public abstract class TopBarController {
                     String function = App.app.getFunction();
                     if (function == null || function.trim().isEmpty()) {
                         System.out.println("No se ha ingresado una función. Usa la vista principal para ingresarla.");
-                        
+
                         // Mostrar animación de error
                         Timeline shakeAnimation = new Timeline(
                             new KeyFrame(Duration.millis(0), evt -> item1.setTranslateX(0)),
@@ -177,7 +177,7 @@ public abstract class TopBarController {
                     String function = App.app.getFunction();
                     if (function == null || function.trim().isEmpty()) {
                         System.out.println("No se ha ingresado una función. Usa la vista principal para ingresarla.");
-                        
+
                         // Mostrar animación de error
                         Timeline shakeAnimation = new Timeline(
                             new KeyFrame(Duration.millis(0), evt -> item2.setTranslateX(0)),
@@ -216,7 +216,23 @@ public abstract class TopBarController {
                     subPopup.hide();
                 });
                 // No se necesita acción para item6 aquí, ya que tiene submenú
-            } else if (button == btnMetodos || button == btnGraficas) {
+            } else if (button == btnGraficas) {
+                item1.setOnMouseClicked(e -> {
+                    System.out.println("Seleccionaste: " + item1.getText());
+                    // Animación de transición entre escenas
+                    FadeTransition fadeOut = new FadeTransition(Duration.millis(300), button.getScene().getRoot());
+                    fadeOut.setFromValue(1.0);
+                    fadeOut.setToValue(0.0);
+                    fadeOut.setOnFinished(ev -> {
+                        App.app.setScene(Paths.GRAFICA);
+                    });
+                    fadeOut.play();
+                    popup.hide();
+                    subPopup.hide();
+                });
+                item2.setOnMouseClicked(e -> System.out.println("Seleccionaste: " + item2.getText()));
+                item3.setOnMouseClicked(e -> System.out.println("Seleccionaste: " + item3.getText()));
+            } else if (button == btnMetodos) {
                 item1.setOnMouseClicked(e -> System.out.println("Seleccionaste: " + item1.getText()));
                 item2.setOnMouseClicked(e -> System.out.println("Seleccionaste: " + item2.getText()));
                 item3.setOnMouseClicked(e -> System.out.println("Seleccionaste: " + item3.getText()));
@@ -227,26 +243,26 @@ public abstract class TopBarController {
             // Calcular posición relativa a la ventana
             Window window = button.getScene().getWindow();
             Bounds buttonBounds = button.localToScreen(button.getBoundsInLocal());
-            
+
             // Posicionar el menú debajo del botón con una distancia fija
             double menuX = buttonBounds.getMinX();
             double menuY = buttonBounds.getMaxY() + MENU_OFFSET_Y;
-            
+
             // Animación de entrada para el popup
             popupContent.setOpacity(0);
             popupContent.setScaleY(0.8);
-            
+
             popup.show(window, menuX, menuY);
-            
+
             // Aplicar animación
             FadeTransition fadeIn = new FadeTransition(Duration.millis(200), popupContent);
             fadeIn.setFromValue(0);
             fadeIn.setToValue(1);
-            
+
             ScaleTransition scaleIn = new ScaleTransition(Duration.millis(200), popupContent);
             scaleIn.setFromY(0.8);
             scaleIn.setToY(1.0);
-            
+
             ParallelTransition parallelIn = new ParallelTransition(fadeIn, scaleIn);
             parallelIn.play();
         });
@@ -258,28 +274,28 @@ public abstract class TopBarController {
                     FadeTransition fadeOut = new FadeTransition(Duration.millis(200), popupContent);
                     fadeOut.setFromValue(1);
                     fadeOut.setToValue(0);
-                    
+
                     ScaleTransition scaleOut = new ScaleTransition(Duration.millis(200), popupContent);
                     scaleOut.setFromY(1.0);
                     scaleOut.setToY(0.8);
-                    
+
                     ParallelTransition parallelOut = new ParallelTransition(fadeOut, scaleOut);
                     parallelOut.setOnFinished(ev -> {
                         popup.hide();
                         popupContent.getStyleClass().remove("showing");
                     });
                     parallelOut.play();
-                    
+
                     // También ocultar el submenú con animación
                     if (subPopup.isShowing()) {
                         FadeTransition subFadeOut = new FadeTransition(Duration.millis(200), subPopupContent);
                         subFadeOut.setFromValue(1);
                         subFadeOut.setToValue(0);
-                        
+
                         ScaleTransition subScaleOut = new ScaleTransition(Duration.millis(200), subPopupContent);
                         subScaleOut.setFromY(1.0);
                         subScaleOut.setToY(0.8);
-                        
+
                         ParallelTransition subParallelOut = new ParallelTransition(subFadeOut, subScaleOut);
                         subParallelOut.setOnFinished(ev -> {
                             subPopup.hide();
@@ -303,28 +319,28 @@ public abstract class TopBarController {
                     FadeTransition fadeOut = new FadeTransition(Duration.millis(200), popupContent);
                     fadeOut.setFromValue(1);
                     fadeOut.setToValue(0);
-                    
+
                     ScaleTransition scaleOut = new ScaleTransition(Duration.millis(200), popupContent);
                     scaleOut.setFromY(1.0);
                     scaleOut.setToY(0.8);
-                    
+
                     ParallelTransition parallelOut = new ParallelTransition(fadeOut, scaleOut);
                     parallelOut.setOnFinished(ev -> {
                         popup.hide();
                         popupContent.getStyleClass().remove("showing");
                     });
                     parallelOut.play();
-                    
+
                     // Si el submenú está visible y no se está interactuando con él, ocultarlo también
                     if (subPopup.isShowing() && !subPopupContent.isHover()) {
                         FadeTransition subFadeOut = new FadeTransition(Duration.millis(200), subPopupContent);
                         subFadeOut.setFromValue(1);
                         subFadeOut.setToValue(0);
-                        
+
                         ScaleTransition subScaleOut = new ScaleTransition(Duration.millis(200), subPopupContent);
                         subScaleOut.setFromY(1.0);
                         subScaleOut.setToY(0.8);
-                        
+
                         ParallelTransition subParallelOut = new ParallelTransition(subFadeOut, subScaleOut);
                         subParallelOut.setOnFinished(ev -> {
                             subPopup.hide();
@@ -337,13 +353,13 @@ public abstract class TopBarController {
             hideDelay.playFromStart();
         });
     }
-    
+
     // Configura la animación para elementos del menú
     private void setupMenuItemAnimation(Label item, int index) {
         // Inicialmente invisible y desplazado
         item.setOpacity(0);
         item.setTranslateX(-20);
-        
+
         // Animación con retraso basado en el índice
         Timeline timeline = new Timeline(new KeyFrame(
             Duration.millis(100 + (index * 50)),
@@ -351,11 +367,11 @@ public abstract class TopBarController {
                 FadeTransition fadeIn = new FadeTransition(Duration.millis(200), item);
                 fadeIn.setFromValue(0);
                 fadeIn.setToValue(1);
-                
+
                 TranslateTransition translateIn = new TranslateTransition(Duration.millis(200), item);
                 translateIn.setFromX(-20);
                 translateIn.setToX(0);
-                
+
                 ParallelTransition parallel = new ParallelTransition(fadeIn, translateIn);
                 parallel.play();
             }
@@ -376,7 +392,7 @@ public abstract class TopBarController {
             subItem1.getStyleClass().add("menu-item");
             subItem2.getStyleClass().add("menu-item");
             subItem3.getStyleClass().add("menu-item");
-        
+
             // Animación para los elementos del submenú
             setupMenuItemAnimation(subItem1, 0);
             setupMenuItemAnimation(subItem2, 1);
@@ -403,10 +419,10 @@ public abstract class TopBarController {
             // Calcular la posición fija para el submenú
             Window window = label.getScene().getWindow();
             Bounds buttonBounds = parentButton.localToScreen(parentButton.getBoundsInLocal());
-        
+
             // Posicionar el submenú más cerca del botón principal
             double subMenuX = buttonBounds.getMinX() + 150; // Desplazamiento horizontal reducido
-        
+
             // Usar una distancia vertical menor SOLO para el botón de Soluciones
             double subMenuY;
             if (parentButton == btnSoluciones) {
@@ -414,22 +430,22 @@ public abstract class TopBarController {
             } else {
                 subMenuY = buttonBounds.getMaxY() + MENU_OFFSET_Y; // Mantiene la distancia original para otros botones
             }
-        
+
             // Animación de entrada para el submenú
             subPopupContent.setOpacity(0);
             subPopupContent.setScaleY(0.8);
-        
+
             subPopup.show(window, subMenuX, subMenuY);
-        
+
             // Aplicar animación
             FadeTransition fadeIn = new FadeTransition(Duration.millis(200), subPopupContent);
             fadeIn.setFromValue(0);
             fadeIn.setToValue(1);
-        
+
             ScaleTransition scaleIn = new ScaleTransition(Duration.millis(200), subPopupContent);
             scaleIn.setFromY(0.8);
             scaleIn.setToY(1.0);
-        
+
             ParallelTransition parallelIn = new ParallelTransition(fadeIn, scaleIn);
             parallelIn.play();
         });
@@ -442,11 +458,11 @@ public abstract class TopBarController {
                     FadeTransition fadeOut = new FadeTransition(Duration.millis(200), subPopupContent);
                     fadeOut.setFromValue(1);
                     fadeOut.setToValue(0);
-                    
+
                     ScaleTransition scaleOut = new ScaleTransition(Duration.millis(200), subPopupContent);
                     scaleOut.setFromY(1.0);
                     scaleOut.setToY(0.8);
-                    
+
                     ParallelTransition parallelOut = new ParallelTransition(fadeOut, scaleOut);
                     parallelOut.setOnFinished(ev -> {
                         subPopup.hide();
@@ -457,7 +473,7 @@ public abstract class TopBarController {
             });
             subHideDelay.playFromStart();
         });
-        
+
         subPopupContent.setOnMouseEntered(event -> {
             subHideDelay.stop();
         });

@@ -204,3 +204,14 @@
 .menu-content {
     -fx-animation: fadeIn 1s ease-in-out;
 }
+
+/* Estilo para hacer que las líneas del gráfico sean continuas */
+.chart-with-continuous-lines .chart-series-line {
+    -fx-stroke-width: 2px;
+}
+
+.chart-with-continuous-lines .chart-line-symbol {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-padding: 0;
+}
