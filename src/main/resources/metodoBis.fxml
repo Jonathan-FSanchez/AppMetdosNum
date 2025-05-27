@@ -14,6 +14,8 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
@@ -21,7 +23,32 @@
     <top>
         <HBox alignment="CENTER" prefHeight="37.0" prefWidth="841.0" styleClass="top-bar" stylesheets="@styles.css" BorderPane.alignment="CENTER">
             <children>
-                <Button fx:id="btnMetodos" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" stylesheets="@styles.css" text="Metodos" textFill="WHITE">
+                <!-- New main menu button -->
+                <Button fx:id="btnMainMenu" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="120.0" stylesheets="@styles.css" text="Menú ▼" textFill="WHITE">
+                    <font>
+                        <Font name="AppleMyungjo Regular" size="13.0" />
+                    </font>
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                    <styleClass>
+                        <String fx:value="menu-button" />
+                        <String fx:value="popup" />
+                        <String fx:value="button-custom" />
+                        <String fx:value="github-style-button" />
+                    </styleClass>
+                </Button>
+                <Button fx:id="btnGraficar" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="88.0" styleClass="button-custom" stylesheets="@styles.css" text="Graficar" textFill="WHITE">
+                    <font>
+                        <Font name="AppleMyungjo Regular" size="13.0" />
+                    </font>
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                </Button>
+
+                <!-- Original buttons (hidden by controller) -->
+                <Button fx:id="btnMetodos" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" stylesheets="@styles.css" text="Metodos" textFill="WHITE" visible="false">
                     <font>
                         <Font name="AppleMyungjo Regular" size="13.0" />
                     </font>
@@ -34,7 +61,7 @@
                         <String fx:value="button-custom" />
                     </styleClass>
                 </Button>
-                <Button fx:id="btnSoluciones" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" stylesheets="@styles.css" text="Soluciones" textFill="WHITE">
+                <Button fx:id="btnSoluciones" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" stylesheets="@styles.css" text="Soluciones" textFill="WHITE" visible="false">
                     <font>
                         <Font name="AppleMyungjo Regular" size="13.0" />
                     </font>
@@ -47,7 +74,7 @@
                         <String fx:value="button-custom" />
                     </styleClass>
                 </Button>
-                <Button fx:id="btnGraficas" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" styleClass="button-custom" stylesheets="@styles.css" text="Graficas" textFill="WHITE">
+                <Button fx:id="btnGraficas" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" styleClass="button-custom" stylesheets="@styles.css" text="Graficas" textFill="WHITE" visible="false">
                     <font>
                         <Font name="AppleMyungjo Regular" size="13.0" />
                     </font>
@@ -55,8 +82,8 @@
                         <Cursor fx:constant="HAND" />
                     </cursor>
                 </Button>
-                <HBox prefHeight="37.0" prefWidth="624.0" />
-                <Button fx:id="btnVMain" alignment="CENTER" mnemonicParsing="false" onAction="#btnVMain" prefHeight="20.0" prefWidth="88.0" styleClass="button-custom" stylesheets="@styles.css" text="View Main" textFill="WHITE">
+                <HBox prefHeight="37.0" prefWidth="536.0" />
+                <Button fx:id="btnVMain" alignment="CENTER" mnemonicParsing="false" onAction="#btnVMain" prefHeight="26.0" prefWidth="110.0" styleClass="button-custom" stylesheets="@styles.css" text="View Main" textFill="WHITE">
                     <font>
                         <Font name="AppleMyungjo Regular" size="13.0" />
                     </font>
@@ -65,7 +92,7 @@
                     </cursor>
                 </Button>
                 <Separator maxHeight="25.0" minHeight="25.0" opacity="0.51" orientation="VERTICAL" prefHeight="25.0" />
-                <Button fx:id="btnExit" alignment="CENTER" mnemonicParsing="false" onAction="#btnExit" prefHeight="27.0" prefWidth="49.0" styleClass="button-custom" stylesheets="@styles.css" text="Exit" textFill="WHITE">
+                <Button fx:id="btnExit" alignment="CENTER" mnemonicParsing="false" onAction="#btnExit" prefHeight="26.0" prefWidth="70.0" styleClass="button-custom" stylesheets="@styles.css" text="Exit" textFill="WHITE">
                     <font>
                         <Font name="AppleMyungjo Regular" size="13.0" />
                     </font>
@@ -84,12 +111,26 @@
             <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="357.0" layoutX="95.0" layoutY="336.0" opacity="0.67" stroke="BLACK" strokeType="INSIDE" styleClass="background-rect-left" width="928.0" />
             <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="223.0" layoutX="100.0" layoutY="97.0" opacity="0.35" stroke="BLACK" strokeType="INSIDE" styleClass="background-rect-left" width="323.0" />
             <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="223.0" layoutX="451.0" layoutY="97.0" opacity="0.35" stroke="BLACK" strokeType="INSIDE" styleClass="background-rect-left" width="572.0" />
+            <StackPane fx:id="chartContainer" layoutX="100.0" layoutY="97.0" prefHeight="223.0" prefWidth="323.0" styleClass="chart-container" />
             <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="904.0" layoutY="610.0" pickOnBounds="true" preserveRatio="true" />
             <Label layoutX="318.0" layoutY="1.0" text="METODO DE BISECCION" textFill="WHITE">
                <font>
                   <Font name="Trattatello" size="45.0" />
                </font>
             </Label>
+            <!-- Mostrar la función actual -->
+            <HBox alignment="CENTER" layoutX="100.0" layoutY="60.0" prefHeight="30.0" prefWidth="928.0" styleClass="function-display">
+                <Label text="Función actual: " textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="16.0" />
+                    </font>
+                </Label>
+                <Label fx:id="lblCurrentFunction" text="No se ha seleccionado una función" textFill="WHITE">
+                    <font>
+                        <Font size="16.0" />
+                    </font>
+                </Label>
+            </HBox>
             <TableView fx:id="tblMBiseccion" layoutX="95.0" layoutY="337.0" prefHeight="355.0" prefWidth="926.0">
               <columns>
                 <TableColumn fx:id="colN" prefWidth="75.0" text="n" />
@@ -102,43 +143,79 @@
                   <TableColumn fx:id="colError" prefWidth="138.87042236328125" text="Error" />
               </columns>
             </TableView>
-            <Label layoutX="475.0" layoutY="154.0" prefHeight="28.0" prefWidth="37.0" text="a:" textFill="WHITE">
-               <font>
-                  <Font size="22.0" />
-               </font>
-            </Label>
-            <Label layoutX="475.0" layoutY="209.0" prefHeight="28.0" prefWidth="37.0" text="b:" textFill="WHITE">
-               <font>
-                  <Font size="22.0" />
-               </font>
-            </Label>
-            <TextField fx:id="txtA" layoutX="497.0" layoutY="155.0" prefHeight="29.0" prefWidth="151.0" />
-            <TextField fx:id="txtB" layoutX="497.0" layoutY="210.0" prefHeight="29.0" prefWidth="151.0" />
+            <!-- Título de la sección de parámetros -->
             <Label layoutX="466.0" layoutY="106.0" prefHeight="37.0" prefWidth="601.0" text="Ingrese los siguientes datos y presione &quot;Ejecutar&quot;." textFill="WHITE">
                <font>
                   <Font name="Sinhala Sangam MN" size="26.0" />
                </font>
             </Label>
-            <Label layoutX="669.0" layoutY="154.0" prefHeight="28.0" prefWidth="174.0" text="Iteracion Maxima:" textFill="WHITE">
-               <font>
-                  <Font name="Sinhala Sangam MN" size="22.0" />
-               </font>
-            </Label>
-            <Label layoutX="669.0" layoutY="209.0" prefHeight="28.0" prefWidth="174.0" text="Error Maximo:" textFill="WHITE">
-               <font>
-                  <Font name="Sinhala Sangam MN" size="22.0" />
-               </font>
-            </Label>
-            <TextField fx:id="txtIMax" layoutX="853.0" layoutY="154.0" prefHeight="29.0" prefWidth="157.0" />
-            <TextField fx:id="txtErMax" layoutX="815.0" layoutY="209.0" prefHeight="29.0" prefWidth="195.0" />
-            <Button layoutX="835.0" layoutY="264.0" mnemonicParsing="false" onAction="#ejecutar" prefHeight="41.0" prefWidth="143.0" styleClass="button3-custom" stylesheets="@styles.css" text="Ejecutar" textFill="WHITE">
-               <font>
-                  <Font size="19.0" />
-               </font>
-               <cursor>
-                  <Cursor fx:constant="HAND" />
-               </cursor>
-            </Button>
+
+            <!-- Parámetros de entrada mejorados -->
+            <VBox layoutX="475.0" layoutY="154.0" spacing="15" styleClass="input-container">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="a:" textFill="WHITE" styleClass="param-label">
+                        <font>
+                            <Font size="22.0" />
+                        </font>
+                    </Label>
+                    <TextField fx:id="txtA" prefHeight="29.0" prefWidth="151.0" promptText="Valor inicial" styleClass="param-input" />
+
+                    <Label text="b:" textFill="WHITE" styleClass="param-label" HBox.hgrow="ALWAYS">
+                        <font>
+                            <Font size="22.0" />
+                        </font>
+                        <HBox.margin>
+                            <Insets left="30.0" />
+                        </HBox.margin>
+                    </Label>
+                    <TextField fx:id="txtB" prefHeight="29.0" prefWidth="151.0" promptText="Valor final" styleClass="param-input" />
+                </HBox>
+
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Iteración Máxima:" textFill="WHITE" styleClass="param-label">
+                        <font>
+                            <Font name="Sinhala Sangam MN" size="22.0" />
+                        </font>
+                    </Label>
+                    <TextField fx:id="txtIMax" prefHeight="29.0" prefWidth="100.0" promptText="Ej: 100" styleClass="param-input" />
+
+                    <Label text="Error Máximo:" textFill="WHITE" styleClass="param-label">
+                        <font>
+                            <Font name="Sinhala Sangam MN" size="22.0" />
+                        </font>
+                        <HBox.margin>
+                            <Insets left="20.0" />
+                        </HBox.margin>
+                    </Label>
+                    <TextField fx:id="txtErMax" prefHeight="29.0" prefWidth="100.0" promptText="Ej: 0.0001" styleClass="param-input" />
+                </HBox>
+
+                <HBox alignment="CENTER">
+                    <Button mnemonicParsing="false" onAction="#ejecutar" prefHeight="41.0" prefWidth="200.0" 
+                            styleClass="button3-custom" stylesheets="@styles.css" text="Ejecutar" textFill="WHITE">
+                        <font>
+                            <Font size="19.0" />
+                        </font>
+                        <cursor>
+                            <Cursor fx:constant="HAND" />
+                        </cursor>
+                    </Button>
+                </HBox>
+            </VBox>
+
+            <!-- Sección para mostrar el resultado final -->
+            <HBox layoutX="95.0" layoutY="700.0" prefHeight="50.0" prefWidth="926.0" styleClass="result-container" alignment="CENTER" spacing="20">
+                <Label text="Resultado final:" textFill="WHITE" styleClass="result-label">
+                    <font>
+                        <Font name="System Bold" size="18.0" />
+                    </font>
+                </Label>
+                <Label fx:id="lblFinalResult" text="Ejecute el método para ver el resultado" textFill="WHITE" styleClass="result-value">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                </Label>
+            </HBox>
          </children>
       </Pane>
    </center>

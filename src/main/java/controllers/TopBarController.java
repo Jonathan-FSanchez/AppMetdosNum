@@ -14,6 +14,8 @@ import javafx.geometry.Bounds;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import javafx.stage.Window;
@@ -21,11 +23,18 @@ import javafx.util.Duration;
 import utils.Paths;
 
 public abstract class TopBarController {
+    // Original buttons (will be hidden in the new implementation)
     @FXML protected Button btnMetodos;
     @FXML protected Button btnSoluciones;
     @FXML protected Button btnGraficas;
     @FXML protected Button btnVMain;
     @FXML protected Button btnExit;
+
+    // New graficar button
+    @FXML protected Button btnGraficar;
+
+    // New main menu button
+    @FXML protected Button btnMainMenu;
 
     protected Popup popup;
     protected Popup subPopup; // Segundo Popup para el submenú
@@ -34,6 +43,9 @@ public abstract class TopBarController {
     protected PauseTransition hideDelay;
     protected PauseTransition subHideDelay; // Retraso para el submenú
 
+    // Grid for the large submenu
+    protected GridPane menuGrid;
+
     // En la clase TopBarController, modifica estas constantes para distancias verticales más cortas:
     // Posiciones fijas para el menú y submenú (relativas a la ventana)
     private static final double MENU_OFFSET_Y = 10.0; // Mantiene la distancia original para menús principales
@@ -41,33 +53,341 @@ public abstract class TopBarController {
 
     @FXML
     protected void initializeTopBar() {
-        // Configurar animaciones para los botones de la barra superior
-        setupButtonAnimations(btnMetodos);
-        setupButtonAnimations(btnSoluciones);
-        setupButtonAnimations(btnGraficas);
+        // Hide original buttons
+        if (btnMetodos != null) btnMetodos.setVisible(false);
+        if (btnSoluciones != null) btnSoluciones.setVisible(false);
+        if (btnGraficas != null) btnGraficas.setVisible(false);
+
+        // Keep these buttons visible
         setupButtonAnimations(btnVMain);
         setupButtonAnimations(btnExit);
 
-        popup = new Popup();
-        subPopup = new Popup();
+        // Setup the main menu button if it exists
+        if (btnMainMenu != null) {
+            setupButtonAnimations(btnMainMenu);
+            setupMainMenuButton();
+        } else {
+            // Fallback to original implementation if btnMainMenu is not defined
+            setupButtonAnimations(btnMetodos);
+            setupButtonAnimations(btnSoluciones);
+            setupButtonAnimations(btnGraficas);
 
-        popupContent = new VBox(5);
-        popupContent.getStyleClass().addAll("context-menu", "popup");
-        popup.getContent().setAll(popupContent);
+            btnMetodos.setVisible(true);
+            btnSoluciones.setVisible(true);
+            btnGraficas.setVisible(true);
 
-        subPopupContent = new VBox(5);
-        subPopupContent.getStyleClass().addAll("context-menu", "popup");
-        subPopup.getContent().setAll(subPopupContent);
+            popup = new Popup();
+            subPopup = new Popup();
 
-        hideDelay = new PauseTransition(Duration.millis(200));
-        subHideDelay = new PauseTransition(Duration.millis(200));
+            popupContent = new VBox(5);
+            popupContent.getStyleClass().addAll("context-menu", "popup");
+            popup.getContent().setAll(popupContent);
 
-        setupHoverEvent(btnMetodos, "Método");
-        setupHoverEvent(btnSoluciones, "Solución");
-        setupHoverEvent(btnGraficas, "Gráfica");
+            subPopupContent = new VBox(5);
+            subPopupContent.getStyleClass().addAll("context-menu", "popup");
+            subPopup.getContent().setAll(subPopupContent);
+
+            hideDelay = new PauseTransition(Duration.millis(200));
+            subHideDelay = new PauseTransition(Duration.millis(200));
+
+            setupHoverEvent(btnMetodos, "Método");
+            setupHoverEvent(btnSoluciones, "Raíces");
+            setupHoverEvent(btnGraficas, "Gráfica");
+        }
 
         btnVMain.setOnAction(this::btnVMain);
         btnExit.setOnAction(this::btnExit);
+
+        // Setup graficar button if it exists
+        if (btnGraficar != null) {
+            setupButtonAnimations(btnGraficar);
+            btnGraficar.setOnAction(event -> {
+                // Animación de transición entre escenas
+                FadeTransition fadeOut = new FadeTransition(Duration.millis(300), btnGraficar.getScene().getRoot());
+                fadeOut.setFromValue(1.0);
+                fadeOut.setToValue(0.0);
+                fadeOut.setOnFinished(ev -> {
+                    App.app.setScene(Paths.GRAFICA);
+                });
+                fadeOut.play();
+            });
+        }
+
+        setupDynamicButton(btnGraficar);
+        setupDynamicButton(btnVMain);
+        setupDynamicButton(btnExit);
+    }
+
+    /**
+     * Sets up the main menu button with a large submenu containing all options
+     */
+    protected void setupMainMenuButton() {
+        popup = new Popup();
+        hideDelay = new PauseTransition(Duration.millis(200));
+
+        // Create a grid pane for the large submenu
+        menuGrid = new GridPane();
+        menuGrid.setHgap(20);
+        menuGrid.setVgap(10);
+        menuGrid.getStyleClass().addAll("context-menu", "popup", "large-menu");
+
+        // Create sections for each category
+        VBox metodosSection = createMenuSection("Métodos", new String[]{
+            "Método de Bisección",
+            "Método de Punto Fijo",
+            "Método de la Secante",
+            "Método de Newton Rapshon",
+            "Método de Müller",
+            "Método de Añadir metodo"
+        });
+
+        VBox raicesSection = createMenuSection("Raíces", new String[]{
+            "Solución de Bisección",
+            "Solución de Punto Fijo",
+            "Solución de la Secante",
+            "Solución de Newton Rapshon",
+            "Solución de Müller",
+            "Solución de Añadir metodo"
+        });
+
+        // Create new sections
+        VBox derivacionSection = createMenuSection("Derivación", new String[]{
+            "Interpolacion",
+            "Polinomio Interpolante de Lagrange",
+            "Derivacion Númerica",
+            "Interpolacion de Richardson",
+            "Derivación para puntos Desigualmente espaciados"
+        });
+
+        VBox integracionSection = createMenuSection("Integración", new String[]{
+            "Integración Numérica",
+            "Integración compuesta",
+            "Integración múltiple",
+            "Interpolación de Romberg",
+            "Método Cuadratura adaptiva"
+        });
+
+        VBox ecuacionesDifSection = createMenuSection("Ecuaciones Diferenciales", new String[]{
+            "Método 1",
+            "Método 2"
+        });
+
+        // Add sections to the grid - reorganized to eliminate gaps
+        menuGrid.add(metodosSection, 0, 0);
+        menuGrid.add(raicesSection, 1, 0);
+        menuGrid.add(derivacionSection, 2, 0);
+        menuGrid.add(integracionSection, 0, 1);
+        menuGrid.add(ecuacionesDifSection, 1, 1);
+
+        popup.getContent().setAll(menuGrid);
+
+        // Set up hover event for the main menu button
+        btnMainMenu.setOnMouseEntered(event -> showLargeMenu(event));
+        btnMainMenu.setOnMouseExited(event -> {
+            hideDelay.setOnFinished(e -> {
+                if (!menuGrid.isHover() && !btnMainMenu.isHover()) {
+                    // Animación de salida para el menú
+                    FadeTransition fadeOut = new FadeTransition(Duration.millis(200), menuGrid);
+                    fadeOut.setFromValue(1);
+                    fadeOut.setToValue(0);
+
+                    ScaleTransition scaleOut = new ScaleTransition(Duration.millis(200), menuGrid);
+                    scaleOut.setFromY(1.0);
+                    scaleOut.setToY(0.8);
+
+                    ParallelTransition parallelOut = new ParallelTransition(fadeOut, scaleOut);
+                    parallelOut.setOnFinished(ev -> {
+                        popup.hide();
+                        menuGrid.getStyleClass().remove("showing");
+                    });
+                    parallelOut.play();
+                }
+            });
+            hideDelay.playFromStart();
+        });
+
+        menuGrid.setOnMouseEntered(event -> {
+            hideDelay.stop();
+        });
+
+        menuGrid.setOnMouseExited(event -> {
+            hideDelay.setOnFinished(e -> {
+                if (!btnMainMenu.isHover()) {
+                    // Animación de salida para el menú
+                    FadeTransition fadeOut = new FadeTransition(Duration.millis(200), menuGrid);
+                    fadeOut.setFromValue(1);
+                    fadeOut.setToValue(0);
+
+                    ScaleTransition scaleOut = new ScaleTransition(Duration.millis(200), menuGrid);
+                    scaleOut.setFromY(1.0);
+                    scaleOut.setToY(0.8);
+
+                    ParallelTransition parallelOut = new ParallelTransition(fadeOut, scaleOut);
+                    parallelOut.setOnFinished(ev -> {
+                        popup.hide();
+                        menuGrid.getStyleClass().remove("showing");
+                    });
+                    parallelOut.play();
+                }
+            });
+            hideDelay.playFromStart();
+        });
+    }
+
+    /**
+     * Creates a section for the large menu with a title and menu items
+     */
+    private VBox createMenuSection(String title, String[] items) {
+        VBox section = new VBox(8);
+        section.getStyleClass().add("menu-section");
+
+        // Add title
+        Label titleLabel = new Label(title);
+        titleLabel.getStyleClass().add("menu-section-title");
+        section.getChildren().add(titleLabel);
+
+        // Add menu items
+        for (int i = 0; i < items.length; i++) {
+            Label item = new Label(items[i]);
+            item.getStyleClass().add("menu-item");
+
+            // Setup animations
+            setupMenuItemAnimation(item, i);
+
+            // Setup click handlers based on the item text
+            setupMenuItemClickHandler(item);
+
+            section.getChildren().add(item);
+        }
+
+        return section;
+    }
+
+    /**
+     * Sets up click handlers for menu items
+     */
+    private void setupMenuItemClickHandler(Label item) {
+        item.setOnMouseClicked(e -> {
+            System.out.println("Seleccionaste: " + item.getText());
+
+            // Set up submenus for specific items
+            if (item.getText().equals("Integración compuesta")) {
+                setupSubMenu(item, btnMainMenu, new String[]{
+                    "Trapecio Compuesto",
+                    "Simpson 1/3",
+                    "Simpson 3/8"
+                });
+                return;
+            } else if (item.getText().equals("Integración múltiple")) {
+                setupSubMenu(item, btnMainMenu, new String[]{
+                    "Método del trapecio",
+                    "Método de simpson 1/3"
+                });
+                return;
+            } else if (item.getText().equals("Método Cuadratura adaptiva")) {
+                setupSubMenu(item, btnMainMenu, new String[]{
+                    "Simpson Compuesto",
+                    "Trapecio simple"
+                });
+                return;
+            }
+
+            // Handle specific menu items
+            if (item.getText().contains("Bisección")) {
+                String function = App.app.getFunction();
+                if (function == null || function.trim().isEmpty()) {
+                    System.out.println("No se ha ingresado una función. Usa la vista principal para ingresarla.");
+
+                    // Mostrar animación de error
+                    Timeline shakeAnimation = new Timeline(
+                        new KeyFrame(Duration.millis(0), evt -> item.setTranslateX(0)),
+                        new KeyFrame(Duration.millis(50), evt -> item.setTranslateX(5)),
+                        new KeyFrame(Duration.millis(100), evt -> item.setTranslateX(-5)),
+                        new KeyFrame(Duration.millis(150), evt -> item.setTranslateX(5)),
+                        new KeyFrame(Duration.millis(200), evt -> item.setTranslateX(0))
+                    );
+                    shakeAnimation.play();
+                } else if (item.getText().contains("Solución")) {
+                    // Animación de transición entre escenas
+                    FadeTransition fadeOut = new FadeTransition(Duration.millis(300), btnMainMenu.getScene().getRoot());
+                    fadeOut.setFromValue(1.0);
+                    fadeOut.setToValue(0.0);
+                    fadeOut.setOnFinished(ev -> {
+                        App.app.setScene(Paths.METODO_BIS);
+                    });
+                    fadeOut.play();
+                } else if (item.getText().contains("Gráfica")) {
+                    // Animación de transición entre escenas
+                    FadeTransition fadeOut = new FadeTransition(Duration.millis(300), btnMainMenu.getScene().getRoot());
+                    fadeOut.setFromValue(1.0);
+                    fadeOut.setToValue(0.0);
+                    fadeOut.setOnFinished(ev -> {
+                        App.app.setScene(Paths.GRAFICA);
+                    });
+                    fadeOut.play();
+                }
+            } else if (item.getText().contains("Punto Fijo")) {
+                String function = App.app.getFunction();
+                if (function == null || function.trim().isEmpty()) {
+                    System.out.println("No se ha ingresado una función. Usa la vista principal para ingresarla.");
+
+                    // Mostrar animación de error
+                    Timeline shakeAnimation = new Timeline(
+                        new KeyFrame(Duration.millis(0), evt -> item.setTranslateX(0)),
+                        new KeyFrame(Duration.millis(50), evt -> item.setTranslateX(5)),
+                        new KeyFrame(Duration.millis(100), evt -> item.setTranslateX(-5)),
+                        new KeyFrame(Duration.millis(150), evt -> item.setTranslateX(5)),
+                        new KeyFrame(Duration.millis(200), evt -> item.setTranslateX(0))
+                    );
+                    shakeAnimation.play();
+                } else if (item.getText().contains("Solución")) {
+                    // Animación de transición entre escenas
+                    FadeTransition fadeOut = new FadeTransition(Duration.millis(300), btnMainMenu.getScene().getRoot());
+                    fadeOut.setFromValue(1.0);
+                    fadeOut.setToValue(0.0);
+                    fadeOut.setOnFinished(ev -> {
+                        App.app.setScene(Paths.METODO_PTO_FIJO);
+                    });
+                    fadeOut.play();
+                }
+            }
+
+            popup.hide();
+        });
+    }
+
+    /**
+     * Shows the large menu when hovering over the main menu button
+     */
+    private void showLargeMenu(MouseEvent event) {
+        hideDelay.stop();
+        menuGrid.getStyleClass().add("showing");
+
+        // Calculate position relative to the window
+        Window window = btnMainMenu.getScene().getWindow();
+        Bounds buttonBounds = btnMainMenu.localToScreen(btnMainMenu.getBoundsInLocal());
+
+        // Position the menu below the button
+        double menuX = buttonBounds.getMinX();
+        double menuY = buttonBounds.getMaxY() + MENU_OFFSET_Y;
+
+        // Animation for the menu
+        menuGrid.setOpacity(0);
+        menuGrid.setScaleY(0.8);
+
+        popup.show(window, menuX, menuY);
+
+        // Apply animation
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(200), menuGrid);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+
+        ScaleTransition scaleIn = new ScaleTransition(Duration.millis(200), menuGrid);
+        scaleIn.setFromY(0.8);
+        scaleIn.setToY(1.0);
+
+        ParallelTransition parallelIn = new ParallelTransition(fadeIn, scaleIn);
+        parallelIn.play();
     }
 
     private void setupButtonAnimations(Button button) {
@@ -140,7 +460,11 @@ public abstract class TopBarController {
 
             // Configurar el submenú para "Solución de Raíces de un Polinomio"
             if (button == btnSoluciones) {
-                setupSubMenu(item6, button); // Pasar el botón padre
+                setupSubMenu(item6, button, new String[]{
+                    "Método de Deflación",
+                    "Método de Raíces de Pol_2",
+                    "Método de Raíces de Pol_3"
+                }); // Pasar el botón padre y los items del submenú
             }
 
             if (button == btnSoluciones) {
@@ -379,42 +703,32 @@ public abstract class TopBarController {
         timeline.play();
     }
 
-    protected void setupSubMenu(Label label, Button parentButton) {
-        label.setOnMouseEntered(event -> {
+    protected void setupSubMenu(Label label, Button parentButton, String[] subItems) {
+        // Define a method to show the submenu
+        Runnable showSubmenu = () -> {
             subHideDelay.stop();
             subPopupContent.getChildren().clear();
             subPopupContent.getStyleClass().add("showing");
 
-            Label subItem1 = new Label("Método de Deflación");
-            Label subItem2 = new Label("Método de Raíces de Pol_2");
-            Label subItem3 = new Label("Método de Raíces de Pol_3");
+            // Create submenu items
+            Label[] subLabels = new Label[subItems.length];
+            for (int i = 0; i < subItems.length; i++) {
+                subLabels[i] = new Label(subItems[i]);
+                subLabels[i].getStyleClass().add("menu-item");
 
-            subItem1.getStyleClass().add("menu-item");
-            subItem2.getStyleClass().add("menu-item");
-            subItem3.getStyleClass().add("menu-item");
+                // Animación para los elementos del submenú
+                setupMenuItemAnimation(subLabels[i], i);
 
-            // Animación para los elementos del submenú
-            setupMenuItemAnimation(subItem1, 0);
-            setupMenuItemAnimation(subItem2, 1);
-            setupMenuItemAnimation(subItem3, 2);
+                // Setup click handler
+                final int index = i;
+                subLabels[i].setOnMouseClicked(e -> {
+                    System.out.println("Seleccionaste: " + subLabels[index].getText());
+                    popup.hide();
+                    subPopup.hide();
+                });
+            }
 
-            subItem1.setOnMouseClicked(e -> {
-                System.out.println("Seleccionaste: " + subItem1.getText());
-                popup.hide();
-                subPopup.hide();
-            });
-            subItem2.setOnMouseClicked(e -> {
-                System.out.println("Seleccionaste: " + subItem2.getText());
-                popup.hide();
-                subPopup.hide();
-            });
-            subItem3.setOnMouseClicked(e -> {
-                System.out.println("Seleccionaste: " + subItem3.getText());
-                popup.hide();
-                subPopup.hide();
-            });
-
-            subPopupContent.getChildren().addAll(subItem1, subItem2, subItem3);
+            subPopupContent.getChildren().addAll(subLabels);
 
             // Calcular la posición fija para el submenú
             Window window = label.getScene().getWindow();
@@ -448,6 +762,17 @@ public abstract class TopBarController {
 
             ParallelTransition parallelIn = new ParallelTransition(fadeIn, scaleIn);
             parallelIn.play();
+        };
+
+        // Set up mouse enter event to show submenu
+        label.setOnMouseEntered(event -> {
+            showSubmenu.run();
+        });
+
+        // Also set up click event to show submenu
+        label.setOnMouseClicked(event -> {
+            showSubmenu.run();
+            event.consume(); // Prevent event from bubbling up
         });
 
         // Manejar la salida del submenú
@@ -476,6 +801,40 @@ public abstract class TopBarController {
 
         subPopupContent.setOnMouseEntered(event -> {
             subHideDelay.stop();
+        });
+    }
+
+    private void setupDynamicButton(Button btn) {
+        // Check if button is null to prevent NullPointerException
+        if (btn == null) {
+            return;
+        }
+
+        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(300), btn);
+
+        // Animación al pasar mouse
+        btn.setOnMouseEntered(event -> {
+            scaleTransition.setToX(1.1);
+            scaleTransition.setToY(1.1);
+            scaleTransition.play();
+        });
+        // Animación al salir del mouse
+        btn.setOnMouseExited(event -> {
+            scaleTransition.setToX(1.0);
+            scaleTransition.setToY(1.0);
+            scaleTransition.play();
+        });
+        // Animación al presionar
+        btn.setOnMousePressed(event -> {
+            scaleTransition.setToX(0.95);
+            scaleTransition.setToY(0.95);
+            scaleTransition.play();
+        });
+        // Restaurar tamaño al soltar
+        btn.setOnMouseReleased(event -> {
+            scaleTransition.setToX(1.1);
+            scaleTransition.setToY(1.1);
+            scaleTransition.play();
         });
     }
 

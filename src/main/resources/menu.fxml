@@ -21,7 +21,32 @@
    <top>
       <HBox alignment="CENTER" prefHeight="37.0" prefWidth="841.0" styleClass="top-bar" stylesheets="@styles.css" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="btnMetodos" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" stylesheets="@styles.css" text="Metodos" textFill="WHITE">
+            <!-- New main menu button -->
+            <Button fx:id="btnMainMenu" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="120.0" stylesheets="@styles.css" text="Menú ▼" textFill="WHITE">
+               <font>
+                  <Font name="AppleMyungjo Regular" size="13.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+               <styleClass>
+                  <String fx:value="menu-button" />
+                  <String fx:value="popup" />
+                  <String fx:value="button-custom" />
+                  <String fx:value="github-style-button" />
+               </styleClass>
+            </Button>
+            <Button fx:id="btnGraficar" alignment="CENTER" mnemonicParsing="false" prefHeight="20.0" prefWidth="88.0" styleClass="button-custom" stylesheets="@styles.css" text="Graficar" textFill="WHITE">
+               <font>
+                  <Font name="AppleMyungjo Regular" size="13.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Button>
+
+            <!-- Original buttons (hidden by controller) -->
+            <Button fx:id="btnMetodos" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" stylesheets="@styles.css" text="Metodos" textFill="WHITE" visible="false">
                <font>
                   <Font name="AppleMyungjo Regular" size="13.0" />
                </font>
@@ -34,7 +59,7 @@
                   <String fx:value="button-custom" />
                </styleClass>
             </Button>
-            <Button fx:id="btnSoluciones" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" stylesheets="@styles.css" text="Soluciones" textFill="WHITE">
+            <Button fx:id="btnSoluciones" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" stylesheets="@styles.css" text="Soluciones" textFill="WHITE" visible="false">
                <font>
                   <Font name="AppleMyungjo Regular" size="13.0" />
                </font>
@@ -47,7 +72,7 @@
                   <String fx:value="button-custom" />
                </styleClass>
             </Button>
-            <Button fx:id="btnGraficas" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" styleClass="button-custom" stylesheets="@styles.css" text="Graficas" textFill="WHITE">
+            <Button fx:id="btnGraficas" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" styleClass="button-custom" stylesheets="@styles.css" text="Graficas" textFill="WHITE" visible="false">
                <font>
                   <Font name="AppleMyungjo Regular" size="13.0" />
                </font>
@@ -55,8 +80,8 @@
                   <Cursor fx:constant="HAND" />
                </cursor>
             </Button>
-            <HBox prefHeight="37.0" prefWidth="624.0" />
-            <Button fx:id="btnVMain" alignment="CENTER" mnemonicParsing="false" onAction="#btnVMain" prefHeight="20.0" prefWidth="88.0" styleClass="button-custom" stylesheets="@styles.css" text="View Main" textFill="WHITE">
+            <HBox prefHeight="37.0" prefWidth="536.0" />
+            <Button fx:id="btnVMain" alignment="CENTER" mnemonicParsing="false" onAction="#btnVMain" prefHeight="26.0" prefWidth="110.0" styleClass="button-custom" stylesheets="@styles.css" text="View Main" textFill="WHITE">
                <font>
                   <Font name="AppleMyungjo Regular" size="13.0" />
                </font>
@@ -65,7 +90,7 @@
                </cursor>
             </Button>
             <Separator maxHeight="25.0" minHeight="25.0" opacity="0.51" orientation="VERTICAL" prefHeight="25.0" />
-            <Button fx:id="btnExit" alignment="CENTER" mnemonicParsing="false" onAction="#btnExit" prefHeight="27.0" prefWidth="49.0" styleClass="button-custom" stylesheets="@styles.css" text="Exit" textFill="WHITE">
+            <Button fx:id="btnExit" alignment="CENTER" mnemonicParsing="false" onAction="#btnExit" prefHeight="26.0" prefWidth="70.0" styleClass="button-custom" stylesheets="@styles.css" text="Exit" textFill="WHITE">
                <font>
                   <Font name="AppleMyungjo Regular" size="13.0" />
                </font>

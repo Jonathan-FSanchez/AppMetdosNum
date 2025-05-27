@@ -21,6 +21,11 @@ public class ConvertidorLatex {
                 return "Esperando...";
             }
 
+            // Verificar si hay un operador al final sin operando (ej. "5*", "3+", "7-", "9/")
+            if (formulaAjustada.matches(".*[\\*\\+\\-\\/]$")) {
+                return "Esperando...";
+            }
+
             // Intentar evaluar con Symja
             ExprEvaluator evaluator = new ExprEvaluator();
             IExpr result = evaluator.eval("TeXForm[" + formulaAjustada + "]");

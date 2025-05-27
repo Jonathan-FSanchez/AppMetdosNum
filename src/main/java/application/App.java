@@ -29,6 +29,15 @@ public class App extends Application {
     }
 
     public static void main(String[] args) {
+        // Suppress GTK warnings
+        System.setProperty("jdk.gtk.version", "2");
+        System.setProperty("prism.lcdtext", "false");
+        System.setProperty("javafx.gtk.warning", "false");
+        System.setProperty("glass.gtk.uiScale", "1.0");
+
+        // Suppress XSetErrorHandler warning
+        System.setProperty("sun.awt.disablegrab", "true");
+
         launch();
     }
 

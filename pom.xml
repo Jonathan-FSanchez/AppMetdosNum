@@ -62,40 +62,24 @@
             <version>2.0.9</version>
         </dependency>
         <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.4.11</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.21.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j2-impl</artifactId>
             <version>2.21.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.21.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.21.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>2.0.9</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
             <version>21</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-nop</artifactId>
-            <version>2.0.9</version>
-        </dependency>
-        <dependency>
-            <groupId>org.matheclipse</groupId>
-            <artifactId>matheclipse-core</artifactId>
-            <version>3.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.scilab.forge</groupId>
@@ -112,7 +96,45 @@
             <artifactId>commons-math3</artifactId>
             <version>3.6.1</version>
         </dependency>
+
+        <!-- Chart-FX - Biblioteca avanzada de gráficos para JavaFX -->
+        <dependency>
+            <groupId>de.gsi.chart</groupId>
+            <artifactId>chartfx-chart</artifactId>
+            <version>11.2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>de.gsi</groupId>
+            <artifactId>chartfx-samples</artifactId>
+            <version>11.2.4</version>
+        </dependency>
+
+        <!-- ControlsFX - Componentes adicionales para JavaFX -->
+        <dependency>
+            <groupId>org.controlsfx</groupId>
+            <artifactId>controlsfx</artifactId>
+            <version>11.2.0</version>
+        </dependency>
+
+        <!-- Use JavaFX Charts instead of Chart-FX -->
+        <!-- Since we're having issues with Chart-FX dependencies, we'll modify the controllers to use JavaFX Charts -->
+        <!-- JavaFX Charts are already included in javafx-controls dependency -->
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+        <repository>
+            <id>oss-sonatype</id>
+            <name>oss-sonatype</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>
@@ -121,7 +143,31 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>tu.paquete.MainClass</mainClass>
+                    <mainClass>application.App</mainClass>
+                    <options>
+                        <option>--add-exports</option>
+                        <option>javafx.controls/com.sun.javafx.scene.control.behavior=ALL-UNNAMED</option>
+                        <option>--add-exports</option>
+                        <option>javafx.controls/com.sun.javafx.scene.control=ALL-UNNAMED</option>
+                        <option>--add-exports</option>
+                        <option>javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED</option>
+                        <option>--add-exports</option>
+                        <option>javafx.graphics/com.sun.javafx.util=ALL-UNNAMED</option>
+                        <option>--add-exports</option>
+                        <option>javafx.base/com.sun.javafx.event=ALL-UNNAMED</option>
+                        <option>--add-exports</option>
+                        <option>javafx.controls/com.sun.javafx.scene.control.inputmap=ALL-UNNAMED</option>
+                        <option>--add-opens</option>
+                        <option>javafx.controls/com.sun.javafx.charts=ALL-UNNAMED</option>
+                        <option>--add-opens</option>
+                        <option>javafx.controls/javafx.scene.chart=ALL-UNNAMED</option>
+                        <option>--add-opens</option>
+                        <option>javafx.graphics/com.sun.javafx.css=ALL-UNNAMED</option>
+                        <option>--add-opens</option>
+                        <option>javafx.base/com.sun.javafx.runtime=ALL-UNNAMED</option>
+                        <option>--add-opens</option>
+                        <option>javafx.controls/javafx.scene.control.skin=ALL-UNNAMED</option>
+                    </options>
                 </configuration>
             </plugin>
         </plugins>

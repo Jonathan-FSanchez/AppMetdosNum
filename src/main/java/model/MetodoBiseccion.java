@@ -4,14 +4,18 @@ import com.example.prueba.ConvertidorLatex;
 import javafx.application.Platform;
 import javafx.scene.control.TableView;
 
+import java.util.List;
+
 public class MetodoBiseccion {
+    /**
+     * Método de bisección que actualiza directamente la tabla de resultados
+     */
     public void metodoBisec(InfoMetodoBiseccion inf, TableView<InfoMetodoBiseccion> tblMBiseccion, String function) {
         int i = 0;
         float c, erAct;
         double v1 = inf.getA();
         double v2 = inf.getB();
         double v3 = inf.getC();
-
 
         System.out.println("v1 = " + v1);
         System.out.println("v2 = " + v2);
@@ -47,6 +51,55 @@ public class MetodoBiseccion {
                 }
                 i++;
             }
+        }
+    }
+
+    /**
+     * Método de bisección que almacena las iteraciones en una lista para animación
+     * @param inf Objeto con los parámetros iniciales
+     * @param iteraciones Lista donde se almacenarán las iteraciones
+     * @param function Función a evaluar
+     */
+    public void metodoBisecAnimado(InfoMetodoBiseccion inf, List<InfoMetodoBiseccion> iteraciones, String function) {
+        int i = 0;
+        float c, erAct;
+        double v1 = inf.getA();
+        double v2 = inf.getB();
+
+        System.out.println("v1 = " + v1);
+        System.out.println("v2 = " + v2);
+        System.out.println("resultado a: " + evaluateFunction(function, v1));
+        System.out.println("resultado b: " + evaluateFunction(function, v2));
+
+        if (evaluateFunction(function, v1) * evaluateFunction(function, v2) > 0) {
+            System.out.println("Imposible calcular: El intervalo no contiene una raíz.");
+            return;
+        }
+
+        while (i < inf.getiMax()) {
+            c = (inf.getA() + inf.getB()) / 2;
+            erAct = Math.abs(inf.getB() - inf.getA()) / 2;
+
+            InfoMetodoBiseccion iter = new InfoMetodoBiseccion();
+            iter.setA(inf.getA());
+            iter.setB(inf.getB());
+            iter.setC(c);
+            iter.setErAct(erAct);
+            iter.setiMax(i + 1);
+
+            // Añadir a la lista de iteraciones para animación
+            iteraciones.add(iter);
+
+            if (erAct <= inf.getErMax()) {
+                break;
+            }
+
+            if (evaluateFunction(function, inf.getA()) * evaluateFunction(function, c) < 0) {
+                inf.setB(c);
+            } else {
+                inf.setA(c);
+            }
+            i++;
         }
     }
 
