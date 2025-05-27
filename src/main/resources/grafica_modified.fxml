@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.embed.swing.SwingNode?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+
+<BorderPane minHeight="600.0" minWidth="800.0" styleClass="background-image" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.JavaFXGraficaController">
+   <top>
+      <HBox alignment="CENTER" prefHeight="37.0" prefWidth="841.0" styleClass="top-bar" stylesheets="@styles.css" BorderPane.alignment="CENTER">
+         <children>
+            <!-- New main menu button -->
+            <Button fx:id="btnMainMenu" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="120.0" stylesheets="@styles.css" text="Menú ▼" textFill="WHITE">
+               <font>
+                  <Font name="AppleMyungjo Regular" size="13.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+               <styleClass>
+                  <String fx:value="menu-button" />
+                  <String fx:value="popup" />
+                  <String fx:value="button-custom" />
+                  <String fx:value="github-style-button" />
+               </styleClass>
+            </Button>
+            <Button fx:id="btnGraficarNav" alignment="CENTER" mnemonicParsing="false" prefHeight="20.0" prefWidth="88.0" styleClass="button-custom" stylesheets="@styles.css" text="Graficar" textFill="WHITE">
+               <font>
+                  <Font name="AppleMyungjo Regular" size="13.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Button>
+
+            <!-- Original buttons (hidden by controller) -->
+            <Button fx:id="btnMetodos" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" stylesheets="@styles.css" text="Metodos" textFill="WHITE" visible="false">
+               <font>
+                  <Font name="AppleMyungjo Regular" size="13.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+               <styleClass>
+                  <String fx:value="menu-button" />
+                  <String fx:value="popup" />
+                  <String fx:value="button-custom" />
+               </styleClass>
+            </Button>
+            <Button fx:id="btnSoluciones" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" stylesheets="@styles.css" text="Soluciones" textFill="WHITE" visible="false">
+               <font>
+                  <Font name="AppleMyungjo Regular" size="13.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+               <styleClass>
+                  <String fx:value="context-menu" />
+                  <String fx:value="popup" />
+                  <String fx:value="button-custom" />
+               </styleClass>
+            </Button>
+            <Button fx:id="btnGraficas" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" styleClass="button-custom" stylesheets="@styles.css" text="Graficas" textFill="WHITE" visible="false">
+               <font>
+                  <Font name="AppleMyungjo Regular" size="13.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Button>
+            <HBox prefHeight="37.0" prefWidth="624.0" />
+            <Button fx:id="btnVMain" alignment="CENTER" mnemonicParsing="false" onAction="#btnVMain" prefHeight="26.0" prefWidth="110.0" styleClass="button-custom" stylesheets="@styles.css" text="View Main" textFill="WHITE">
+               <font>
+                  <Font name="AppleMyungjo Regular" size="13.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Button>
+            <Separator maxHeight="25.0" minHeight="25.0" opacity="0.51" orientation="VERTICAL" prefHeight="25.0" />
+            <Button fx:id="btnExit" alignment="CENTER" mnemonicParsing="false" onAction="#btnExit" prefHeight="26.0" prefWidth="70.0" styleClass="button-custom" stylesheets="@styles.css" text="Exit" textFill="WHITE">
+               <font>
+                  <Font name="AppleMyungjo Regular" size="13.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Button>
+         </children>
+      </HBox>
+   </top>
+
+   <!-- Left sidebar for controls -->
+   <left>
+      <VBox fx:id="sidebar" styleClass="sidebar" spacing="10">
+         <children>
+            <!-- Sidebar header with title and toggle button -->
+            <HBox styleClass="sidebar-header" alignment="CENTER" spacing="10">
+               <children>
+                  <Label text="Controles" styleClass="sidebar-section-title" />
+                  <Region>
+                     <HBox.margin>
+                        <Insets left="5" right="5" />
+                     </HBox.margin>
+                     <HBox.hgrow>ALWAYS</HBox.hgrow>
+                  </Region>
+                  <Button fx:id="btnToggleSidebar" styleClass="sidebar-toggle-button" text="&lt;" />
+               </children>
+            </HBox>
+
+            <!-- ScrollPane para permitir desplazamiento vertical -->
+            <ScrollPane styleClass="sidebar-scroll-pane" VBox.vgrow="ALWAYS" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
+               <content>
+                  <VBox spacing="10">
+                     <children>
+                        <!-- Function input section -->
+                        <VBox styleClass="sidebar-section" spacing="10">
+                           <children>
+                              <Label text="Función" styleClass="sidebar-section-title" />
+                              <TextField fx:id="txtFunction" promptText="Inserte la función aquí" styleClass="custom-textfield" />
+                              <Button fx:id="btnGraficar" onAction="#graficarFuncion" styleClass="button1-custom" text="Graficar" textFill="#eeeaea">
+                                 <cursor>
+                                    <Cursor fx:constant="HAND" />
+                                 </cursor>
+                              </Button>
+                              <HBox fx:id="symbolButtons" alignment="CENTER" spacing="5" styleClass="symbol-panel" />
+                           </children>
+                        </VBox>
+
+                        <!-- Range controls section -->
+                        <VBox styleClass="sidebar-section" spacing="10">
+                           <children>
+                              <Label text="Rango" styleClass="sidebar-section-title" />
+                              <HBox spacing="10" alignment="CENTER">
+                                 <children>
+                                    <VBox spacing="5" styleClass="compact-form">
+                                       <children>
+                                          <Label text="X Min:" styleClass="compact-label" />
+                                          <TextField fx:id="txtXMin" styleClass="compact-field" text="-10" />
+                                       </children>
+                                    </VBox>
+                                    <VBox spacing="5" styleClass="compact-form">
+                                       <children>
+                                          <Label text="X Max:" styleClass="compact-label" />
+                                          <TextField fx:id="txtXMax" styleClass="compact-field" text="10" />
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                              <HBox spacing="10" alignment="CENTER">
+                                 <children>
+                                    <VBox spacing="5" styleClass="compact-form">
+                                       <children>
+                                          <Label text="Y Min:" styleClass="compact-label" />
+                                          <TextField fx:id="txtYMin" styleClass="compact-field" text="-10" />
+                                       </children>
+                                    </VBox>
+                                    <VBox spacing="5" styleClass="compact-form">
+                                       <children>
+                                          <Label text="Y Max:" styleClass="compact-label" />
+                                          <TextField fx:id="txtYMax" styleClass="compact-field" text="10" />
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                              <Button fx:id="btnActualizarRango" onAction="#actualizarRango" styleClass="compact-button" text="Actualizar Rango" />
+                              <CheckBox fx:id="chkInfiniteRange" text="Rango Infinito" textFill="WHITE">
+                                 <tooltip>
+                                    <Tooltip text="Activar para graficar sin límites fijos" />
+                                 </tooltip>
+                              </CheckBox>
+                           </children>
+                        </VBox>
+
+                        <!-- Functions list section -->
+                        <VBox styleClass="sidebar-section" spacing="10" VBox.vgrow="ALWAYS">
+                           <children>
+                              <Label text="Funciones" styleClass="sidebar-section-title" />
+                              <ListView fx:id="lstFunctions" VBox.vgrow="ALWAYS" styleClass="function-list" />
+                              <HBox spacing="10">
+                                 <children>
+                                    <Button fx:id="btnAddFunction" onAction="#addNewFunction" styleClass="compact-button" text="Añadir">
+                                       <tooltip>
+                                          <Tooltip text="Añadir una nueva función a la gráfica" />
+                                       </tooltip>
+                                    </Button>
+                                    <Button fx:id="btnDeleteFunction" onAction="#deleteSelectedFunction" styleClass="compact-button" text="Eliminar">
+                                       <tooltip>
+                                          <Tooltip text="Eliminar la función seleccionada" />
+                                       </tooltip>
+                                    </Button>
+                                 </children>
+                              </HBox>
+                              <Label fx:id="lblSelectedFunction" styleClass="selected-function-label" text="Ninguna función seleccionada" wrapText="true" />
+                           </children>
+                        </VBox>
+
+                        <!-- Tools section -->
+                        <VBox styleClass="sidebar-section" spacing="10">
+                           <children>
+                              <Label text="Herramientas" styleClass="sidebar-section-title" />
+                              <HBox spacing="10">
+                                 <children>
+                                    <Button fx:id="btnFindIntersection" styleClass="compact-button" text="Intersecciones">
+                                       <tooltip>
+                                          <Tooltip text="Encontrar puntos de intersección entre funciones" />
+                                       </tooltip>
+                                    </Button>
+                                    <Button fx:id="btnCalculateDerivative" styleClass="compact-button" text="Derivada">
+                                       <tooltip>
+                                          <Tooltip text="Calcular y graficar la derivada de la función seleccionada" />
+                                       </tooltip>
+                                    </Button>
+                                 </children>
+                              </HBox>
+                              <HBox spacing="10">
+                                 <children>
+                                    <Button fx:id="btnCalculateIntegral" styleClass="compact-button" text="Integral">
+                                       <tooltip>
+                                          <Tooltip text="Calcular y graficar la integral de la función seleccionada" />
+                                       </tooltip>
+                                    </Button>
+                                    <Button fx:id="btnShowTable" styleClass="compact-button" text="Tabla">
+                                       <tooltip>
+                                          <Tooltip text="Mostrar tabla de valores para la función seleccionada" />
+                                       </tooltip>
+                                    </Button>
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+
+                        <!-- Display options section -->
+                        <VBox styleClass="sidebar-section" spacing="10">
+                           <children>
+                              <Label text="Visualización" styleClass="sidebar-section-title" />
+                              <VBox spacing="5">
+                                 <children>
+                                    <Label text="Zoom:" styleClass="compact-label" />
+                                    <Slider fx:id="zoomSlider" max="2.0" min="0.5" value="1.0" />
+                                 </children>
+                              </VBox>
+                              <HBox spacing="10">
+                                 <children>
+                                    <CheckBox fx:id="chkShowGrid" selected="true" text="Mostrar Cuadrícula" textFill="WHITE" />
+                                 </children>
+                              </HBox>
+                              <HBox spacing="10">
+                                 <children>
+                                    <ToggleButton fx:id="btnThemeToggle" styleClass="theme-toggle" text="Tema Oscuro">
+                                       <tooltip>
+                                          <Tooltip text="Cambiar entre tema claro y oscuro" />
+                                       </tooltip>
+                                    </ToggleButton>
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+
+                        <!-- Export/Settings section -->
+                        <VBox styleClass="sidebar-section" spacing="10">
+                           <children>
+                              <Label text="Opciones" styleClass="sidebar-section-title" />
+                              <HBox spacing="10">
+                                 <children>
+                                    <Button fx:id="btnEnlargeGraph" onAction="#enlargeGraph" styleClass="compact-button" text="Ampliar">
+                                       <tooltip>
+                                          <Tooltip text="Ampliar la gráfica en una ventana nueva" />
+                                       </tooltip>
+                                    </Button>
+                                    <Button fx:id="btnExportGraph" styleClass="compact-button" text="Exportar">
+                                       <tooltip>
+                                          <Tooltip text="Guardar la gráfica como imagen" />
+                                       </tooltip>
+                                    </Button>
+                                 </children>
+                              </HBox>
+                              <Button fx:id="btnSettings" styleClass="compact-button" text="Configuración">
+                                 <tooltip>
+                                    <Tooltip text="Configurar opciones de la gráfica" />
+                                 </tooltip>
+                              </Button>
+                           </children>
+                        </VBox>
+                     </children>
+                     <padding>
+                        <Insets top="5" right="5" bottom="5" left="5" />
+                     </padding>
+                  </VBox>
+               </content>
+            </ScrollPane>
+         </children>
+         <padding>
+            <Insets top="10" right="10" bottom="10" left="10" />
+         </padding>
+      </VBox>
+   </left>
+
+   <!-- Main content area with graph -->
+   <center>
+      <VBox fx:id="mainContent" styleClass="main-content" spacing="10" BorderPane.alignment="CENTER" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS">
+         <children>
+            <!-- Title and coordinates bar -->
+            <HBox alignment="CENTER" spacing="10">
+               <children>
+                  <Label styleClass="graph-title" text="Graficadora de Funciones" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="28.0" />
+                     </font>
+                     <effect>
+                        <javafx.scene.effect.DropShadow color="#7c638a" height="10.0" radius="4.5" spread="0.2" width="10.0" />
+                     </effect>
+                  </Label>
+               </children>
+               <padding>
+                  <Insets top="10" bottom="10" />
+               </padding>
+            </HBox>
+
+            <!-- Coordinates display -->
+            <HBox alignment="CENTER_LEFT" spacing="10">
+               <children>
+                  <Label fx:id="lblCoordinates" styleClass="coordinates-label" text="Coordenadas: (0.00, 0.00)" textFill="WHITE">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
+               </children>
+               <padding>
+                  <Insets bottom="5" />
+               </padding>
+            </HBox>
+
+            <!-- Graph container -->
+            <StackPane fx:id="chartContainer" styleClass="graph-container" VBox.vgrow="ALWAYS">
+               <padding>
+                  <Insets top="10" right="10" bottom="10" left="10" />
+               </padding>
+            </StackPane>
+
+            <!-- Function info panel (simplified) -->
+            <HBox fx:id="functionInfoPanel" alignment="CENTER" spacing="10" styleClass="function-info-panel">
+               <padding>
+                  <Insets top="10" right="10" bottom="10" left="10" />
+               </padding>
+            </HBox>
+         </children>
+         <padding>
+            <Insets top="10" right="20" bottom="20" left="10" />
+         </padding>
+      </VBox>
+   </center>
+</BorderPane>
