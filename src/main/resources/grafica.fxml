@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.lang.String?>
-<?import javafx.embed.swing.SwingNode?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
@@ -14,15 +13,13 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<?import javafx.scene.chart.LineChart?>
-<?import javafx.scene.chart.NumberAxis?>
 
 <BorderPane minHeight="600.0" minWidth="800.0" styleClass="background-image" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.JavaFXGraficaController">
    <top>
@@ -111,12 +108,12 @@
 
    <!-- Left sidebar for controls -->
    <left>
-      <VBox fx:id="sidebar" styleClass="sidebar" spacing="10">
+      <VBox fx:id="sidebar" spacing="10" styleClass="sidebar">
          <children>
             <!-- Sidebar header with title and toggle button -->
-            <HBox styleClass="sidebar-header" alignment="CENTER" spacing="10">
+            <HBox alignment="CENTER" spacing="10" styleClass="sidebar-header">
                <children>
-                  <Label text="Controles" styleClass="sidebar-section-title" />
+                  <Label styleClass="sidebar-section-title" text="Controles" />
                   <Region>
                      <HBox.margin>
                         <Insets left="5" right="5" />
@@ -128,14 +125,14 @@
             </HBox>
 
             <!-- ScrollPane para permitir desplazamiento vertical -->
-            <ScrollPane styleClass="sidebar-scroll-pane" VBox.vgrow="ALWAYS" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="sidebar-scroll-pane" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS">
                <content>
                   <VBox spacing="10">
                      <children>
                         <!-- Function input section -->
-                        <VBox styleClass="sidebar-section" spacing="10">
+                        <VBox spacing="10" styleClass="sidebar-section">
                            <children>
-                              <Label text="Función" styleClass="sidebar-section-title" />
+                              <Label styleClass="sidebar-section-title" text="Función" />
                               <TextField fx:id="txtFunction" promptText="Inserte la función aquí" styleClass="custom-textfield" />
                               <Button fx:id="btnGraficar" onAction="#graficarFuncion" styleClass="button1-custom" text="Graficar" textFill="#eeeaea">
                                  <cursor>
@@ -147,37 +144,37 @@
                         </VBox>
 
                         <!-- Range controls section -->
-                        <VBox styleClass="sidebar-section" spacing="10">
+                        <VBox spacing="10" styleClass="sidebar-section">
                            <children>
-                              <Label text="Rango" styleClass="sidebar-section-title" />
-                              <HBox spacing="10" alignment="CENTER">
+                              <Label styleClass="sidebar-section-title" text="Rango" />
+                              <HBox alignment="CENTER" spacing="10">
                                  <children>
                                     <VBox spacing="5" styleClass="compact-form">
                                        <children>
-                                          <Label text="X Min:" styleClass="compact-label" />
-                                          <TextField fx:id="txtXMin" styleClass="compact-field" text="-10" />
+                                          <Label styleClass="compact-label" text="X Min:" />
+                                          <TextField fx:id="txtXMin" prefHeight="29.0" prefWidth="60.0" styleClass="compact-field" text="-10" />
                                        </children>
                                     </VBox>
                                     <VBox spacing="5" styleClass="compact-form">
                                        <children>
-                                          <Label text="X Max:" styleClass="compact-label" />
-                                          <TextField fx:id="txtXMax" styleClass="compact-field" text="10" />
+                                          <Label styleClass="compact-label" text="X Max:" />
+                                          <TextField fx:id="txtXMax" prefHeight="29.0" prefWidth="60.0" styleClass="compact-field" text="10" />
                                        </children>
                                     </VBox>
                                  </children>
                               </HBox>
-                              <HBox spacing="10" alignment="CENTER">
+                              <HBox alignment="CENTER" spacing="10">
                                  <children>
                                     <VBox spacing="5" styleClass="compact-form">
                                        <children>
-                                          <Label text="Y Min:" styleClass="compact-label" />
-                                          <TextField fx:id="txtYMin" styleClass="compact-field" text="-10" />
+                                          <Label styleClass="compact-label" text="Y Min:" />
+                                          <TextField fx:id="txtYMin" prefHeight="29.0" prefWidth="60.0" styleClass="compact-field" text="-10" />
                                        </children>
                                     </VBox>
                                     <VBox spacing="5" styleClass="compact-form">
                                        <children>
-                                          <Label text="Y Max:" styleClass="compact-label" />
-                                          <TextField fx:id="txtYMax" styleClass="compact-field" text="10" />
+                                          <Label styleClass="compact-label" text="Y Max:" />
+                                          <TextField fx:id="txtYMax" prefHeight="29.0" prefWidth="60.0" styleClass="compact-field" text="10" />
                                        </children>
                                     </VBox>
                                  </children>
@@ -192,10 +189,10 @@
                         </VBox>
 
                         <!-- Functions list section -->
-                        <VBox styleClass="sidebar-section" spacing="10" VBox.vgrow="ALWAYS">
+                        <VBox spacing="10" styleClass="sidebar-section" VBox.vgrow="ALWAYS">
                            <children>
-                              <Label text="Funciones" styleClass="sidebar-section-title" />
-                              <ListView fx:id="lstFunctions" VBox.vgrow="ALWAYS" styleClass="function-list" />
+                              <Label styleClass="sidebar-section-title" text="Funciones" />
+                              <ListView fx:id="lstFunctions" styleClass="function-list" VBox.vgrow="ALWAYS" />
                               <HBox spacing="10">
                                  <children>
                                     <Button fx:id="btnAddFunction" onAction="#addNewFunction" styleClass="compact-button" text="Añadir">
@@ -215,9 +212,9 @@
                         </VBox>
 
                         <!-- Tools section -->
-                        <VBox styleClass="sidebar-section" spacing="10">
+                        <VBox spacing="10" styleClass="sidebar-section">
                            <children>
-                              <Label text="Herramientas" styleClass="sidebar-section-title" />
+                              <Label styleClass="sidebar-section-title" text="Herramientas" />
                               <HBox spacing="10">
                                  <children>
                                     <Button fx:id="btnFindIntersection" styleClass="compact-button" text="Intersecciones">
@@ -250,12 +247,12 @@
                         </VBox>
 
                         <!-- Display options section -->
-                        <VBox styleClass="sidebar-section" spacing="10">
+                        <VBox spacing="10" styleClass="sidebar-section">
                            <children>
-                              <Label text="Visualización" styleClass="sidebar-section-title" />
+                              <Label styleClass="sidebar-section-title" text="Visualización" />
                               <VBox spacing="5">
                                  <children>
-                                    <Label text="Zoom:" styleClass="compact-label" />
+                                    <Label styleClass="compact-label" text="Zoom:" />
                                     <Slider fx:id="zoomSlider" max="2.0" min="0.5" value="1.0" />
                                  </children>
                               </VBox>
@@ -277,9 +274,9 @@
                         </VBox>
 
                         <!-- Export/Settings section -->
-                        <VBox styleClass="sidebar-section" spacing="10">
+                        <VBox spacing="10" styleClass="sidebar-section">
                            <children>
-                              <Label text="Opciones" styleClass="sidebar-section-title" />
+                              <Label styleClass="sidebar-section-title" text="Opciones" />
                               <HBox spacing="10">
                                  <children>
                                     <Button fx:id="btnEnlargeGraph" onAction="#enlargeGraph" styleClass="compact-button" text="Ampliar">
@@ -303,21 +300,21 @@
                         </VBox>
                      </children>
                      <padding>
-                        <Insets top="5" right="5" bottom="5" left="5" />
+                        <Insets bottom="5" left="5" right="5" top="5" />
                      </padding>
                   </VBox>
                </content>
             </ScrollPane>
          </children>
          <padding>
-            <Insets top="10" right="10" bottom="10" left="10" />
+            <Insets bottom="10" left="10" right="10" top="10" />
          </padding>
       </VBox>
    </left>
 
    <!-- Main content area with graph -->
    <center>
-      <VBox fx:id="mainContent" styleClass="main-content" spacing="10" BorderPane.alignment="CENTER" VBox.vgrow="ALWAYS" HBox.hgrow="ALWAYS">
+      <VBox fx:id="mainContent" spacing="10" styleClass="main-content" BorderPane.alignment="CENTER" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
          <children>
             <!-- Title and coordinates bar -->
             <HBox alignment="CENTER" spacing="10">
@@ -332,7 +329,7 @@
                   </Label>
                </children>
                <padding>
-                  <Insets top="10" bottom="10" />
+                  <Insets bottom="10" top="10" />
                </padding>
             </HBox>
 
@@ -353,19 +350,19 @@
             <!-- Graph container -->
             <StackPane fx:id="chartContainer" styleClass="graph-container" VBox.vgrow="ALWAYS">
                <padding>
-                  <Insets top="10" right="10" bottom="10" left="10" />
+                  <Insets bottom="10" left="10" right="10" top="10" />
                </padding>
             </StackPane>
 
             <!-- Function info panel (simplified) -->
             <HBox fx:id="functionInfoPanel" alignment="CENTER" spacing="10" styleClass="function-info-panel">
                <padding>
-                  <Insets top="10" right="10" bottom="10" left="10" />
+                  <Insets bottom="10" left="10" right="10" top="10" />
                </padding>
             </HBox>
          </children>
          <padding>
-            <Insets top="10" right="20" bottom="20" left="10" />
+            <Insets bottom="20" left="10" right="20" top="10" />
          </padding>
       </VBox>
    </center>

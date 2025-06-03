@@ -19,7 +19,7 @@
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="803.0" prefWidth="1121.0" styleClass="backgroundMBis-image" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.CtrlMetodoBiseccion">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="803.0" prefWidth="1121.0" styleClass="backgroundMBis-image" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.CtrlMetodoInterpolacion">
     <top>
         <HBox alignment="CENTER" prefHeight="37.0" prefWidth="841.0" styleClass="top-bar" stylesheets="@styles.css" BorderPane.alignment="CENTER">
             <children>
@@ -113,54 +113,49 @@
             <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="223.0" layoutX="451.0" layoutY="97.0" opacity="0.35" stroke="BLACK" strokeType="INSIDE" styleClass="background-rect-left" width="572.0" />
             <StackPane fx:id="chartContainer" layoutX="100.0" layoutY="97.0" prefHeight="223.0" prefWidth="323.0" styleClass="chart-container" />
             <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="904.0" layoutY="610.0" pickOnBounds="true" preserveRatio="true" />
-            <Label layoutX="318.0" layoutY="1.0" text="METODO DE BISECCION" textFill="WHITE">
+            <Label layoutX="318.0" layoutY="1.0" text="INTERPOLACIÓN DE LAGRANGE" textFill="WHITE">
                <font>
                   <Font name="Trattatello" size="45.0" />
                </font>
             </Label>
-            <!-- Mostrar la función actual -->
+            <!-- Mostrar la información de puntos -->
             <HBox alignment="CENTER" layoutX="100.0" layoutY="60.0" prefHeight="30.0" prefWidth="928.0" styleClass="function-display">
-                <Label text="Función actual: " textFill="WHITE">
+                <Label text="Puntos actuales: " textFill="WHITE">
                     <font>
                         <Font name="System Bold" size="16.0" />
                     </font>
                 </Label>
-                <Label fx:id="lblCurrentFunction" text="No se ha seleccionado una función" textFill="WHITE">
+                <Label fx:id="lblCurrentPoints" text="No se han ingresado puntos" textFill="WHITE">
                     <font>
                         <Font size="16.0" />
                     </font>
                 </Label>
             </HBox>
-            <TableView fx:id="tblMBiseccion" layoutX="95.0" layoutY="337.0" prefHeight="355.0" prefWidth="926.0">
+            <TableView fx:id="tblPuntos" layoutX="95.0" layoutY="337.0" prefHeight="355.0" prefWidth="926.0">
               <columns>
-                <TableColumn fx:id="colN" prefWidth="75.0" text="n" />
-                <TableColumn fx:id="colA" prefWidth="145.05430603027344" text="a" />
-                  <TableColumn fx:id="colC" prefWidth="145.05430603027344" text="c" />
-                  <TableColumn fx:id="colB" prefWidth="145.05430603027344" text="b" />
-                  <TableColumn fx:id="colFa" prefWidth="90.6241455078125" text="f(a)" />
-                  <TableColumn fx:id="colFc" prefWidth="90.6241455078125" text="f(c)" />
-                  <TableColumn fx:id="colFb" prefWidth="90.6241455078125" text="f(b)" />
-                  <TableColumn fx:id="colError" prefWidth="138.87042236328125" text="Error" />
+                <TableColumn fx:id="colIndice" prefWidth="75.0" text="Índice" />
+                <TableColumn fx:id="colX" prefWidth="200.0" text="Valor X" />
+                <TableColumn fx:id="colY" prefWidth="200.0" text="Valor Y" />
               </columns>
             </TableView>
             <!-- Título de la sección de parámetros -->
-            <Label layoutX="466.0" layoutY="106.0" prefHeight="37.0" prefWidth="548.0" text="Ingrese los siguientes datos y presione &quot;Ejecutar&quot;." textFill="WHITE">
+            <Label layoutX="466.0" layoutY="106.0" prefHeight="37.0" prefWidth="548.0" text="Ingrese los puntos y presione &quot;Interpolar&quot;." textFill="WHITE">
                <font>
                   <Font name="System Bold" size="21.0" />
                </font>
             </Label>
 
-            <!-- Parámetros de entrada mejorados -->
+            <!-- Parámetros de entrada para interpolación -->
             <VBox layoutX="475.0" layoutY="154.0" spacing="15" styleClass="input-container">
                 <HBox alignment="CENTER_LEFT" spacing="10">
-                    <Label styleClass="param-label" text="a:" textFill="WHITE">
+                    <Label styleClass="param-label" text="Valor X:" textFill="WHITE">
                         <font>
                             <Font size="22.0" />
                         </font>
                     </Label>
-                    <TextField fx:id="txtA" prefHeight="29.0" prefWidth="151.0" promptText="Valor inicial" styleClass="param-input" />
+                    <TextField fx:id="txtX" prefHeight="29.0" prefWidth="151.0" promptText="Valor X" styleClass="param-input" />
 
-                    <Label styleClass="param-label" text="b:" textFill="WHITE" HBox.hgrow="ALWAYS">
+                    <Label styleClass="param-label" text="Valor Y:" textFill="WHITE" HBox.hgrow="ALWAYS">
                         <font>
                             <Font size="22.0" />
                         </font>
@@ -168,30 +163,45 @@
                             <Insets left="30.0" />
                         </HBox.margin>
                     </Label>
-                    <TextField fx:id="txtB" prefHeight="29.0" prefWidth="151.0" promptText="Valor final" styleClass="param-input" />
+                    <TextField fx:id="txtY" prefHeight="29.0" prefWidth="151.0" promptText="Valor Y" styleClass="param-input" />
                 </HBox>
 
                 <HBox alignment="CENTER_LEFT" spacing="10">
-                    <Label prefHeight="32.0" prefWidth="163.0" styleClass="param-label" text="Iteración Max:" textFill="WHITE">
+                    <Button mnemonicParsing="false" onAction="#agregarPunto" prefHeight="41.0" prefWidth="204.0" styleClass="button3-custom" stylesheets="@styles.css" text="Agregar Punto" textFill="WHITE">
                         <font>
-                            <Font name="Sinhala Sangam MN" size="22.0" />
+                            <Font size="19.0" />
                         </font>
-                    </Label>
-                    <TextField fx:id="txtIMax" prefHeight="29.0" prefWidth="100.0" promptText="Ej: 100" styleClass="param-input" />
-
-                    <Label styleClass="param-label" text="Error Max:" textFill="WHITE">
+                        <cursor>
+                            <Cursor fx:constant="HAND" />
+                        </cursor>
+                    </Button>
+                    
+                    <Button mnemonicParsing="false" onAction="#limpiarPuntos" prefHeight="41.0" prefWidth="204.0" styleClass="button3-custom" stylesheets="@styles.css" text="Limpiar Puntos" textFill="WHITE">
                         <font>
-                            <Font name="Sinhala Sangam MN" size="22.0" />
+                            <Font size="19.0" />
                         </font>
+                        <cursor>
+                            <Cursor fx:constant="HAND" />
+                        </cursor>
                         <HBox.margin>
                             <Insets left="20.0" />
                         </HBox.margin>
+                    </Button>
+                </HBox>
+
+                <Separator prefWidth="200.0" />
+
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label styleClass="param-label" text="Valor a interpolar:" textFill="WHITE">
+                        <font>
+                            <Font size="22.0" />
+                        </font>
                     </Label>
-                    <TextField fx:id="txtErMax" prefHeight="29.0" prefWidth="100.0" promptText="Ej: 0.0001" styleClass="param-input" />
+                    <TextField fx:id="txtValorInterpolar" prefHeight="29.0" prefWidth="151.0" promptText="Valor X a interpolar" styleClass="param-input" />
                 </HBox>
 
                 <HBox alignment="CENTER" prefHeight="41.0" prefWidth="464.0">
-                    <Button mnemonicParsing="false" onAction="#ejecutar" prefHeight="41.0" prefWidth="204.0" styleClass="button3-custom" stylesheets="@styles.css" text="Ejecutar" textFill="WHITE">
+                    <Button mnemonicParsing="false" onAction="#interpolar" prefHeight="41.0" prefWidth="204.0" styleClass="button3-custom" stylesheets="@styles.css" text="Interpolar" textFill="WHITE">
                         <font>
                             <Font size="19.0" />
                         </font>
@@ -204,12 +214,26 @@
 
             <!-- Sección para mostrar el resultado final -->
             <HBox alignment="CENTER" layoutX="95.0" layoutY="700.0" prefHeight="50.0" prefWidth="926.0" spacing="20" styleClass="result-container">
-                <Label styleClass="result-label" text="Resultado final:" textFill="WHITE">
+                <Label styleClass="result-label" text="Resultado de interpolación:" textFill="WHITE">
                     <font>
                         <Font name="System Bold" size="18.0" />
                     </font>
                 </Label>
-                <Label fx:id="lblFinalResult" styleClass="result-value" text="Ejecute el método para ver el resultado" textFill="WHITE">
+                <Label fx:id="lblResultado" styleClass="result-value" text="Ejecute la interpolación para ver el resultado" textFill="WHITE">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                </Label>
+            </HBox>
+            
+            <!-- Sección para mostrar el polinomio -->
+            <HBox alignment="CENTER" layoutX="95.0" layoutY="750.0" prefHeight="50.0" prefWidth="926.0" spacing="20" styleClass="result-container">
+                <Label styleClass="result-label" text="Polinomio:" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="18.0" />
+                    </font>
+                </Label>
+                <Label fx:id="lblPolinomio" styleClass="result-value" text="Ejecute la interpolación para ver el polinomio" textFill="WHITE">
                     <font>
                         <Font size="18.0" />
                     </font>

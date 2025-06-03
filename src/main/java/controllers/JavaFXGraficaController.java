@@ -23,6 +23,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.Button;
 import javafx.animation.TranslateTransition;
+import javafx.application.Platform;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -38,6 +39,7 @@ import model.IntegralCalculator;
 import javax.imageio.ImageIO;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Insets;
@@ -160,8 +162,209 @@ public class JavaFXGraficaController extends TopBarController {
         // Configurar botones de símbolos
         setupSymbolButtons();
 
+        // Configurar atajos de teclado
+        setupKeyboardShortcuts();
+
         // Configurar sidebar
         setupSidebar();
+
+        // Mostrar mensaje de bienvenida con consejos
+        showWelcomeMessage();
+    }
+
+    /**
+     * Configura atajos de teclado para operaciones comunes
+     */
+    private void setupKeyboardShortcuts() {
+        // Crear mapa de atajos de teclado
+        javafx.scene.input.KeyCombination.Modifier controlModifier = 
+            javafx.scene.input.KeyCombination.CONTROL_DOWN;
+        javafx.scene.input.KeyCombination.Modifier shiftModifier = 
+            javafx.scene.input.KeyCombination.SHIFT_DOWN;
+
+        // Mapa de atajos y sus descripciones
+        Map<javafx.scene.input.KeyCombination, Runnable> shortcuts = new HashMap<>();
+        Map<javafx.scene.input.KeyCombination, String> shortcutDescriptions = new HashMap<>();
+
+        // Graficar (Ctrl+G)
+        javafx.scene.input.KeyCombination graphKeyComb = 
+            new javafx.scene.input.KeyCodeCombination(javafx.scene.input.KeyCode.G, controlModifier);
+        shortcuts.put(graphKeyComb, this::graficarFuncion);
+        shortcutDescriptions.put(graphKeyComb, "Graficar función");
+
+        // Añadir función (Ctrl+A)
+        javafx.scene.input.KeyCombination addKeyComb = 
+            new javafx.scene.input.KeyCodeCombination(javafx.scene.input.KeyCode.A, controlModifier);
+        shortcuts.put(addKeyComb, this::addNewFunction);
+        shortcutDescriptions.put(addKeyComb, "Añadir función");
+
+        // Eliminar función (Ctrl+D)
+        javafx.scene.input.KeyCombination deleteKeyComb = 
+            new javafx.scene.input.KeyCodeCombination(javafx.scene.input.KeyCode.D, controlModifier);
+        shortcuts.put(deleteKeyComb, this::deleteSelectedFunction);
+        shortcutDescriptions.put(deleteKeyComb, "Eliminar función seleccionada");
+
+        // Calcular derivada (Ctrl+Shift+D)
+        javafx.scene.input.KeyCombination derivativeKeyComb = 
+            new javafx.scene.input.KeyCodeCombination(javafx.scene.input.KeyCode.D, controlModifier, shiftModifier);
+        shortcuts.put(derivativeKeyComb, this::calculateDerivative);
+        shortcutDescriptions.put(derivativeKeyComb, "Calcular derivada");
+
+        // Calcular integral (Ctrl+Shift+I)
+        javafx.scene.input.KeyCombination integralKeyComb = 
+            new javafx.scene.input.KeyCodeCombination(javafx.scene.input.KeyCode.I, controlModifier, shiftModifier);
+        shortcuts.put(integralKeyComb, this::calculateIntegral);
+        shortcutDescriptions.put(integralKeyComb, "Calcular integral");
+
+        // Analizar función (Ctrl+Shift+A)
+        javafx.scene.input.KeyCombination analyzeKeyComb = 
+            new javafx.scene.input.KeyCodeCombination(javafx.scene.input.KeyCode.A, controlModifier, shiftModifier);
+        shortcuts.put(analyzeKeyComb, this::analyzeFunction);
+        shortcutDescriptions.put(analyzeKeyComb, "Analizar función");
+
+        // Exportar gráfica (Ctrl+E)
+        javafx.scene.input.KeyCombination exportKeyComb = 
+            new javafx.scene.input.KeyCodeCombination(javafx.scene.input.KeyCode.E, controlModifier);
+        shortcuts.put(exportKeyComb, this::exportGraph);
+        shortcutDescriptions.put(exportKeyComb, "Exportar gráfica");
+
+        // Mostrar/ocultar sidebar (Ctrl+B)
+        javafx.scene.input.KeyCombination sidebarKeyComb = 
+            new javafx.scene.input.KeyCodeCombination(javafx.scene.input.KeyCode.B, controlModifier);
+        shortcuts.put(sidebarKeyComb, this::toggleSidebar);
+        shortcutDescriptions.put(sidebarKeyComb, "Mostrar/ocultar panel lateral");
+
+        // Mostrar tabla (Ctrl+T)
+        javafx.scene.input.KeyCombination tableKeyComb = 
+            new javafx.scene.input.KeyCodeCombination(javafx.scene.input.KeyCode.T, controlModifier);
+        shortcuts.put(tableKeyComb, this::showTable);
+        shortcutDescriptions.put(tableKeyComb, "Mostrar tabla de valores");
+
+        // Mostrar ayuda (F1)
+        javafx.scene.input.KeyCombination helpKeyComb = 
+            new javafx.scene.input.KeyCodeCombination(javafx.scene.input.KeyCode.F1);
+        shortcuts.put(helpKeyComb, this::showShortcutsHelp);
+        shortcutDescriptions.put(helpKeyComb, "Mostrar ayuda");
+
+        // Registrar manejador de eventos de teclado
+        if (chart != null && chart.getScene() != null) {
+            chart.getScene().setOnKeyPressed(event -> {
+                for (javafx.scene.input.KeyCombination keyComb : shortcuts.keySet()) {
+                    if (keyComb.match(event)) {
+                        shortcuts.get(keyComb).run();
+                        event.consume();
+                        break;
+                    }
+                }
+            });
+        } else {
+            // Si el chart aún no está en la escena, programar para más tarde
+            javafx.application.Platform.runLater(() -> {
+                if (chart != null && chart.getScene() != null) {
+                    chart.getScene().setOnKeyPressed(event -> {
+                        for (javafx.scene.input.KeyCombination keyComb : shortcuts.keySet()) {
+                            if (keyComb.match(event)) {
+                                shortcuts.get(keyComb).run();
+                                event.consume();
+                                break;
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        // Guardar descripciones para mostrar en la ayuda
+        this.keyboardShortcuts = shortcutDescriptions;
+    }
+
+    // Variable para almacenar descripciones de atajos de teclado
+    private Map<javafx.scene.input.KeyCombination, String> keyboardShortcuts;
+
+    /**
+     * Muestra un diálogo con los atajos de teclado disponibles
+     */
+    private void showShortcutsHelp() {
+        // Crear diálogo
+        javafx.scene.control.Dialog<Void> dialog = new javafx.scene.control.Dialog<>();
+        dialog.setTitle("Atajos de Teclado");
+        dialog.setHeaderText("Atajos de teclado disponibles");
+
+        // Botón de cerrar
+        dialog.getDialogPane().getButtonTypes().add(javafx.scene.control.ButtonType.CLOSE);
+
+        // Crear tabla de atajos
+        javafx.scene.layout.VBox content = new javafx.scene.layout.VBox(10);
+        content.setPadding(new javafx.geometry.Insets(20));
+
+        // Crear tabla
+        javafx.scene.control.TableView<javafx.util.Pair<String, String>> table = 
+            new javafx.scene.control.TableView<>();
+
+        // Columnas
+        javafx.scene.control.TableColumn<javafx.util.Pair<String, String>, String> shortcutColumn = 
+            new javafx.scene.control.TableColumn<>("Atajo");
+        shortcutColumn.setCellValueFactory(data -> 
+            new javafx.beans.property.SimpleStringProperty(data.getValue().getKey()));
+
+        javafx.scene.control.TableColumn<javafx.util.Pair<String, String>, String> descriptionColumn = 
+            new javafx.scene.control.TableColumn<>("Descripción");
+        descriptionColumn.setCellValueFactory(data -> 
+            new javafx.beans.property.SimpleStringProperty(data.getValue().getValue()));
+
+        // Configurar columnas
+        shortcutColumn.setPrefWidth(150);
+        descriptionColumn.setPrefWidth(250);
+
+        table.getColumns().add(shortcutColumn);
+        table.getColumns().add(descriptionColumn);
+
+        // Añadir datos
+        javafx.collections.ObservableList<javafx.util.Pair<String, String>> data = 
+            javafx.collections.FXCollections.observableArrayList();
+
+        for (javafx.scene.input.KeyCombination keyComb : keyboardShortcuts.keySet()) {
+            data.add(new javafx.util.Pair<>(keyComb.getDisplayText(), keyboardShortcuts.get(keyComb)));
+        }
+
+        table.setItems(data);
+
+        // Añadir tabla al contenido
+        content.getChildren().add(table);
+
+        // Configurar diálogo
+        dialog.getDialogPane().setContent(content);
+
+        // Mostrar diálogo
+        dialog.showAndWait();
+    }
+
+    /**
+     * Muestra un mensaje de bienvenida con consejos útiles
+     */
+    private void showWelcomeMessage() {
+        // Programar la visualización del diálogo para después de que se complete la inicialización de JavaFX
+        Platform.runLater(() -> {
+            // Crear diálogo
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+            alert.setTitle("Bienvenido a la Graficadora Mejorada");
+            alert.setHeaderText("Graficadora de Funciones Matemáticas");
+
+            // Mensaje con consejos
+            String message = "¡Bienvenido a la graficadora mejorada!\n\n" +
+                "Nuevas características:\n" +
+                "• Derivadas de orden superior y detección de puntos críticos\n" +
+                "• Integrales definidas con visualización de área\n" +
+                "• Análisis completo de funciones (dominio, simetría, puntos críticos)\n" +
+                "• Personalización de colores y estilos de línea\n" +
+                "• Atajos de teclado para operaciones comunes\n\n" +
+                "Presiona F1 en cualquier momento para ver los atajos de teclado disponibles.";
+
+            alert.setContentText(message);
+
+            // Mostrar diálogo
+            alert.showAndWait();
+        });
     }
 
     /**
@@ -191,147 +394,405 @@ public class JavaFXGraficaController extends TopBarController {
     }
 
     private void setupChartFX() {
-        try {
-            // Crear ejes con etiquetas y rangos iniciales que incluyan valores negativos
-            xAxis = new DefaultNumericAxis(xMin, xMax, 1);
-            yAxis = new DefaultNumericAxis(yMin, yMax, 1);
-            xAxis.setName("x");
-            yAxis.setName("y");
+        // Usar Platform.runLater para asegurar que la inicialización se realice en el hilo de JavaFX
+        // después de que la escena esté completamente cargada
+        Platform.runLater(() -> {
+            try {
+                System.out.println("Iniciando configuración del gráfico...");
 
-            // Configurar opciones de ejes
-            xAxis.setAnimated(false);
-            yAxis.setAnimated(false);
-            xAxis.setAutoRangeRounding(true);
-            yAxis.setAutoRangeRounding(true);
+                // Crear ejes con etiquetas y rangos iniciales que incluyan valores negativos
+                xAxis = new DefaultNumericAxis(xMin, xMax, 1);
+                yAxis = new DefaultNumericAxis(yMin, yMax, 1);
+                xAxis.setName("x");
+                yAxis.setName("y");
 
-            // Configurar ejes para que se crucen en el origen (estilo cruz)
-            xAxis.setForceZeroInRange(true);
-            yAxis.setForceZeroInRange(true);
+                // Configurar opciones de ejes
+                xAxis.setAnimated(false);
+                yAxis.setAnimated(false);
+                xAxis.setAutoRangeRounding(true);
+                yAxis.setAutoRangeRounding(true);
 
-            // Crear gráfico XY
-            chart = new XYChart(xAxis, yAxis);
+                // Configurar ejes para que se crucen en el origen (estilo cruz)
+                xAxis.setForceZeroInRange(true);
+                yAxis.setForceZeroInRange(true);
 
-            // Configurar el estilo de la cuadrícula para que se vea como una cruz
-            chart.getGridRenderer().setDrawOnTop(true);
-            chart.setAnimated(false);
+                // Crear gráfico XY
+                chart = new XYChart(xAxis, yAxis);
 
-            // Añadir renderer optimizado para conjuntos de datos grandes
-            ErrorDataSetRenderer renderer = new ErrorDataSetRenderer();
-            renderer.setDrawMarker(false); // No dibujar marcadores por defecto
-            renderer.setErrorType(ErrorStyle.NONE); // Sin barras de error
+                // Configurar el estilo de la cuadrícula para que se vea como una cruz
+                chart.getGridRenderer().setDrawOnTop(true);
+                chart.setAnimated(false);
 
-            // Configurar reducción de datos para mejor rendimiento
-            DefaultDataReducer dataReducer = new DefaultDataReducer();
-            dataReducer.setMinPointPixelDistance(1); // Cambiado a int
+                // Añadir renderer optimizado para conjuntos de datos grandes
+                ErrorDataSetRenderer renderer = new ErrorDataSetRenderer();
+                renderer.setDrawMarker(false); // No dibujar marcadores por defecto
+                renderer.setErrorType(ErrorStyle.NONE); // Sin barras de error
 
-            chart.getRenderers().add(renderer);
+                // Configurar reducción de datos para mejor rendimiento
+                DefaultDataReducer dataReducer = new DefaultDataReducer();
+                dataReducer.setMinPointPixelDistance(1); // Cambiado a int
 
-            // Añadir plugins interactivos con configuración básica
-            // Plugins para interactividad mejorada
-            chart.getPlugins().add(new Zoomer()); // Zoom
-            chart.getPlugins().add(new Panner()); // Panning/desplazamiento
-            chart.getPlugins().add(new EditAxis()); // Edición de ejes
-            chart.getPlugins().add(new DataPointTooltip()); // Tooltips en puntos
-            chart.getPlugins().add(new ParameterMeasurements()); // Mediciones
+                chart.getRenderers().add(renderer);
 
-            // Añadir gráfico al contenedor
-            if (chartContainer != null) {
-                chartContainer.getChildren().add(chart);
+                // Añadir plugins interactivos con configuración básica
+                // Plugins para interactividad mejorada
+                chart.getPlugins().add(new Zoomer()); // Zoom
+                chart.getPlugins().add(new Panner()); // Panning/desplazamiento
+                chart.getPlugins().add(new EditAxis()); // Edición de ejes
+                chart.getPlugins().add(new DataPointTooltip()); // Tooltips en puntos
+                chart.getPlugins().add(new ParameterMeasurements()); // Mediciones
+
+                // Añadir gráfico al contenedor
+                if (chartContainer != null) {
+                    chartContainer.getChildren().clear(); // Limpiar cualquier contenido previo
+                    chartContainer.getChildren().add(chart);
+                    System.out.println("Gráfico añadido al contenedor correctamente");
+                } else {
+                    System.err.println("Error: chartContainer es null");
+                }
+            } catch (Exception e) {
+                System.err.println("Error al configurar el gráfico: " + e.getMessage());
+                e.printStackTrace();
+                // Mostrar un mensaje de error en la UI
+                if (chartContainer != null) {
+                    Label errorLabel = new Label("Error al cargar el gráfico: " + e.getMessage());
+                    errorLabel.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
+                    chartContainer.getChildren().clear();
+                    chartContainer.getChildren().add(errorLabel);
+                }
             }
-        } catch (Exception e) {
-            System.err.println("Error al configurar el gráfico: " + e.getMessage());
-            // No propagar la excepción para evitar que falle la carga de la vista
-        }
+        });
     }
 
     private void setupUIElements() {
-        // Inicializar campos de texto con valores predeterminados
-        if (txtXMin != null) {
-            txtXMin.setText(String.valueOf(xMin));
-        }
-        if (txtXMax != null) {
-            txtXMax.setText(String.valueOf(xMax));
-        }
-        if (txtYMin != null) {
-            txtYMin.setText(String.valueOf(yMin));
-        }
-        if (txtYMax != null) {
-            txtYMax.setText(String.valueOf(yMax));
-        }
+        // Usar Platform.runLater para asegurar que la inicialización se realice en el hilo de JavaFX
+        // después de que la escena esté completamente cargada
+        Platform.runLater(() -> {
+            try {
+                System.out.println("Iniciando configuración de elementos UI...");
 
-        // Configurar ListView para funciones
-        if (lstFunctions != null) {
-            lstFunctions.getSelectionModel().selectedIndexProperty().addListener((obs, oldIdx, newIdx) -> {
-                if (newIdx.intValue() >= 0) {
-                    selectFunction(newIdx.intValue());
+                // Inicializar campos de texto con valores predeterminados
+                if (txtXMin != null) {
+                    txtXMin.setText(String.valueOf(xMin));
+                    System.out.println("txtXMin inicializado: " + xMin);
+                } else {
+                    System.err.println("Error: txtXMin es null");
                 }
-            });
-        }
 
-        // Configurar slider de zoom
-        if (zoomSlider != null) {
-            zoomSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
-                applyZoom(newVal.doubleValue());
-            });
-        }
+                if (txtXMax != null) {
+                    txtXMax.setText(String.valueOf(xMax));
+                    System.out.println("txtXMax inicializado: " + xMax);
+                } else {
+                    System.err.println("Error: txtXMax es null");
+                }
 
-        // Configurar checkbox de cuadrícula
-        if (chkShowGrid != null) {
-            chkShowGrid.selectedProperty().addListener((obs, oldVal, newVal) -> {
-                toggleGridLines(newVal);
-            });
-        }
+                if (txtYMin != null) {
+                    txtYMin.setText(String.valueOf(yMin));
+                    System.out.println("txtYMin inicializado: " + yMin);
+                } else {
+                    System.err.println("Error: txtYMin es null");
+                }
 
-        // Configurar toggle de tema
-        if (btnThemeToggle != null) {
-            btnThemeToggle.selectedProperty().addListener((obs, oldVal, newVal) -> {
-                toggleTheme(newVal);
-            });
-        }
+                if (txtYMax != null) {
+                    txtYMax.setText(String.valueOf(yMax));
+                    System.out.println("txtYMax inicializado: " + yMax);
+                } else {
+                    System.err.println("Error: txtYMax es null");
+                }
+
+                // Configurar TextField para función
+                if (txtFunction != null) {
+                    // Asegurar que el campo de texto pueda recibir foco
+                    txtFunction.setFocusTraversable(true);
+                    txtFunction.setEditable(true);
+                    txtFunction.setDisable(false);
+                    System.out.println("txtFunction configurado correctamente");
+                } else {
+                    System.err.println("Error: txtFunction es null");
+                }
+
+                // Configurar ListView para funciones
+                if (lstFunctions != null) {
+                    lstFunctions.getSelectionModel().selectedIndexProperty().addListener((obs, oldIdx, newIdx) -> {
+                        if (newIdx != null && newIdx.intValue() >= 0) {
+                            selectFunction(newIdx.intValue());
+                        }
+                    });
+                    System.out.println("lstFunctions configurado correctamente");
+                } else {
+                    System.err.println("Error: lstFunctions es null");
+                }
+
+                // Configurar slider de zoom
+                if (zoomSlider != null) {
+                    zoomSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+                        if (newVal != null) {
+                            applyZoom(newVal.doubleValue());
+                        }
+                    });
+                    System.out.println("zoomSlider configurado correctamente");
+                } else {
+                    System.err.println("Error: zoomSlider es null");
+                }
+
+                // Configurar checkbox de cuadrícula
+                if (chkShowGrid != null) {
+                    chkShowGrid.selectedProperty().addListener((obs, oldVal, newVal) -> {
+                        if (newVal != null) {
+                            toggleGridLines(newVal);
+                        }
+                    });
+                    System.out.println("chkShowGrid configurado correctamente");
+                } else {
+                    System.err.println("Error: chkShowGrid es null");
+                }
+
+                // Configurar toggle de tema
+                if (btnThemeToggle != null) {
+                    btnThemeToggle.selectedProperty().addListener((obs, oldVal, newVal) -> {
+                        if (newVal != null) {
+                            toggleTheme(newVal);
+                        }
+                    });
+                    System.out.println("btnThemeToggle configurado correctamente");
+                } else {
+                    System.err.println("Error: btnThemeToggle es null");
+                }
+
+                System.out.println("Configuración de elementos UI completada");
+            } catch (Exception e) {
+                System.err.println("Error al configurar elementos UI: " + e.getMessage());
+                e.printStackTrace();
+            }
+        });
     }
 
     private void setupEventHandlers() {
-        // Configurar eventos para botones con verificación de nulos
-        if (btnGraficar != null) {
-            btnGraficar.setOnAction(event -> graficarFuncion());
-        }
-        if (btnActualizarRango != null) {
-            btnActualizarRango.setOnAction(event -> actualizarRango());
-        }
-        if (btnAddFunction != null) {
-            btnAddFunction.setOnAction(event -> addNewFunction());
-        }
-        if (btnDeleteFunction != null) {
-            btnDeleteFunction.setOnAction(event -> deleteSelectedFunction());
-        }
-        if (btnEnlargeGraph != null) {
-            btnEnlargeGraph.setOnAction(event -> enlargeGraph());
-        }
-        if (btnExportGraph != null) {
-            btnExportGraph.setOnAction(event -> exportGraph());
-        }
-        if (btnFindIntersection != null) {
-            btnFindIntersection.setOnAction(event -> findIntersection());
-        }
-        if (btnCalculateDerivative != null) {
-            btnCalculateDerivative.setOnAction(event -> calculateDerivative());
-        }
-        if (btnCalculateIntegral != null) {
-            btnCalculateIntegral.setOnAction(event -> calculateIntegral());
-        }
-        if (btnShowTable != null) {
-            btnShowTable.setOnAction(event -> showTable());
-        }
-        if (btnAddPoint != null) {
-            btnAddPoint.setOnAction(event -> addPoint());
-        }
-        if (btnSettings != null) {
-            btnSettings.setOnAction(event -> showSettings());
-        }
+        // Usar Platform.runLater para asegurar que la inicialización se realice en el hilo de JavaFX
+        // después de que la escena esté completamente cargada
+        Platform.runLater(() -> {
+            try {
+                System.out.println("Iniciando configuración de manejadores de eventos...");
 
-        // Configurar evento para el botón de toggle del sidebar
-        if (btnToggleSidebar != null) {
-            btnToggleSidebar.setOnAction(event -> toggleSidebar());
+                // Configurar eventos para botones con verificación de nulos
+                if (btnGraficar != null) {
+                    btnGraficar.setOnAction(event -> {
+                        try {
+                            graficarFuncion();
+                        } catch (Exception e) {
+                            System.err.println("Error al graficar función: " + e.getMessage());
+                            e.printStackTrace();
+                            showNotification("Error al graficar: " + e.getMessage());
+                        }
+                    });
+                    System.out.println("btnGraficar configurado correctamente");
+                } else {
+                    System.err.println("Error: btnGraficar es null");
+                }
+
+                if (btnActualizarRango != null) {
+                    btnActualizarRango.setOnAction(event -> {
+                        try {
+                            actualizarRango();
+                        } catch (Exception e) {
+                            System.err.println("Error al actualizar rango: " + e.getMessage());
+                            e.printStackTrace();
+                            showNotification("Error al actualizar rango: " + e.getMessage());
+                        }
+                    });
+                    System.out.println("btnActualizarRango configurado correctamente");
+                } else {
+                    System.err.println("Error: btnActualizarRango es null");
+                }
+
+                if (btnAddFunction != null) {
+                    btnAddFunction.setOnAction(event -> {
+                        try {
+                            addNewFunction();
+                        } catch (Exception e) {
+                            System.err.println("Error al añadir función: " + e.getMessage());
+                            e.printStackTrace();
+                            showNotification("Error al añadir función: " + e.getMessage());
+                        }
+                    });
+                    System.out.println("btnAddFunction configurado correctamente");
+                } else {
+                    System.err.println("Error: btnAddFunction es null");
+                }
+
+                if (btnDeleteFunction != null) {
+                    btnDeleteFunction.setOnAction(event -> {
+                        try {
+                            deleteSelectedFunction();
+                        } catch (Exception e) {
+                            System.err.println("Error al eliminar función: " + e.getMessage());
+                            e.printStackTrace();
+                            showNotification("Error al eliminar función: " + e.getMessage());
+                        }
+                    });
+                    System.out.println("btnDeleteFunction configurado correctamente");
+                } else {
+                    System.err.println("Error: btnDeleteFunction es null");
+                }
+
+                if (btnEnlargeGraph != null) {
+                    btnEnlargeGraph.setOnAction(event -> {
+                        try {
+                            enlargeGraph();
+                        } catch (Exception e) {
+                            System.err.println("Error al ampliar gráfico: " + e.getMessage());
+                            e.printStackTrace();
+                            showNotification("Error al ampliar gráfico: " + e.getMessage());
+                        }
+                    });
+                    System.out.println("btnEnlargeGraph configurado correctamente");
+                } else {
+                    System.err.println("Error: btnEnlargeGraph es null");
+                }
+
+                if (btnExportGraph != null) {
+                    btnExportGraph.setOnAction(event -> {
+                        try {
+                            exportGraph();
+                        } catch (Exception e) {
+                            System.err.println("Error al exportar gráfico: " + e.getMessage());
+                            e.printStackTrace();
+                            showNotification("Error al exportar gráfico: " + e.getMessage());
+                        }
+                    });
+                    System.out.println("btnExportGraph configurado correctamente");
+                } else {
+                    System.err.println("Error: btnExportGraph es null");
+                }
+
+                if (btnFindIntersection != null) {
+                    btnFindIntersection.setOnAction(event -> {
+                        try {
+                            findIntersection();
+                        } catch (Exception e) {
+                            System.err.println("Error al buscar intersección: " + e.getMessage());
+                            e.printStackTrace();
+                            showNotification("Error al buscar intersección: " + e.getMessage());
+                        }
+                    });
+                    System.out.println("btnFindIntersection configurado correctamente");
+                } else {
+                    System.err.println("Error: btnFindIntersection es null");
+                }
+
+                if (btnCalculateDerivative != null) {
+                    btnCalculateDerivative.setOnAction(event -> {
+                        try {
+                            calculateDerivative();
+                        } catch (Exception e) {
+                            System.err.println("Error al calcular derivada: " + e.getMessage());
+                            e.printStackTrace();
+                            showNotification("Error al calcular derivada: " + e.getMessage());
+                        }
+                    });
+                    System.out.println("btnCalculateDerivative configurado correctamente");
+                } else {
+                    System.err.println("Error: btnCalculateDerivative es null");
+                }
+
+                if (btnCalculateIntegral != null) {
+                    btnCalculateIntegral.setOnAction(event -> {
+                        try {
+                            calculateIntegral();
+                        } catch (Exception e) {
+                            System.err.println("Error al calcular integral: " + e.getMessage());
+                            e.printStackTrace();
+                            showNotification("Error al calcular integral: " + e.getMessage());
+                        }
+                    });
+                    System.out.println("btnCalculateIntegral configurado correctamente");
+                } else {
+                    System.err.println("Error: btnCalculateIntegral es null");
+                }
+
+                if (btnShowTable != null) {
+                    btnShowTable.setOnAction(event -> {
+                        try {
+                            showTable();
+                        } catch (Exception e) {
+                            System.err.println("Error al mostrar tabla: " + e.getMessage());
+                            e.printStackTrace();
+                            showNotification("Error al mostrar tabla: " + e.getMessage());
+                        }
+                    });
+                    System.out.println("btnShowTable configurado correctamente");
+                } else {
+                    System.err.println("Error: btnShowTable es null");
+                }
+
+                if (btnAddPoint != null) {
+                    btnAddPoint.setOnAction(event -> {
+                        try {
+                            addPoint();
+                        } catch (Exception e) {
+                            System.err.println("Error al añadir punto: " + e.getMessage());
+                            e.printStackTrace();
+                            showNotification("Error al añadir punto: " + e.getMessage());
+                        }
+                    });
+                    System.out.println("btnAddPoint configurado correctamente");
+                } else {
+                    System.err.println("Error: btnAddPoint es null");
+                }
+
+                if (btnSettings != null) {
+                    btnSettings.setOnAction(event -> {
+                        try {
+                            showSettings();
+                        } catch (Exception e) {
+                            System.err.println("Error al mostrar configuración: " + e.getMessage());
+                            e.printStackTrace();
+                            showNotification("Error al mostrar configuración: " + e.getMessage());
+                        }
+                    });
+                    System.out.println("btnSettings configurado correctamente");
+                } else {
+                    System.err.println("Error: btnSettings es null");
+                }
+
+                // Configurar evento para el botón de toggle del sidebar
+                if (btnToggleSidebar != null) {
+                    btnToggleSidebar.setOnAction(event -> {
+                        try {
+                            toggleSidebar();
+                        } catch (Exception e) {
+                            System.err.println("Error al alternar sidebar: " + e.getMessage());
+                            e.printStackTrace();
+                            showNotification("Error al alternar sidebar: " + e.getMessage());
+                        }
+                    });
+                    System.out.println("btnToggleSidebar configurado correctamente");
+                } else {
+                    System.err.println("Error: btnToggleSidebar es null");
+                }
+
+                System.out.println("Configuración de manejadores de eventos completada");
+            } catch (Exception e) {
+                System.err.println("Error al configurar manejadores de eventos: " + e.getMessage());
+                e.printStackTrace();
+            }
+        });
+
+        // Añadir menú contextual a la lista de funciones
+        if (lstFunctions != null) {
+            javafx.scene.control.ContextMenu contextMenu = new javafx.scene.control.ContextMenu();
+
+            javafx.scene.control.MenuItem analyzeItem = new javafx.scene.control.MenuItem("Analizar función");
+            analyzeItem.setOnAction(event -> analyzeFunction());
+
+            javafx.scene.control.MenuItem changeColorItem = new javafx.scene.control.MenuItem("Cambiar color");
+            changeColorItem.setOnAction(event -> changeSelectedFunctionColor());
+
+            javafx.scene.control.MenuItem changeStyleItem = new javafx.scene.control.MenuItem("Cambiar estilo");
+            changeStyleItem.setOnAction(event -> changeSelectedFunctionStyle());
+
+            contextMenu.getItems().addAll(analyzeItem, changeColorItem, changeStyleItem);
+            lstFunctions.setContextMenu(contextMenu);
         }
 
         // Configurar eventos para coordenadas del mouse
@@ -1519,118 +1980,239 @@ public class JavaFXGraficaController extends TopBarController {
     }
 
     private void setupLatexRender() {
-        if (latexRender == null) {
-            return;
-        }
+        // Usar Platform.runLater para asegurar que la inicialización se realice en el hilo de JavaFX
+        // después de que la escena esté completamente cargada
+        Platform.runLater(() -> {
+            try {
+                System.out.println("Iniciando configuración del renderizador LaTeX...");
 
-        // Crear un panel para mostrar fórmulas LaTeX
-        JPanel panel = new JPanel();
-        panel.setBackground(Color.WHITE);
+                if (latexRender == null) {
+                    System.err.println("Error: latexRender es null");
+                    return;
+                }
 
-        // Configurar el SwingNode con el panel
-        latexRender.setContent(panel);
+                // Crear un panel para mostrar fórmulas LaTeX
+                JPanel panel = new JPanel();
+                panel.setBackground(Color.WHITE);
 
-        // Mostrar una fórmula inicial
-        updateLatexRender("f(x) = x");
+                // Configurar el SwingNode con el panel
+                latexRender.setContent(panel);
+
+                // Mostrar una fórmula inicial
+                updateLatexRender("f(x) = x");
+
+                System.out.println("Configuración del renderizador LaTeX completada");
+            } catch (Exception e) {
+                System.err.println("Error al configurar el renderizador LaTeX: " + e.getMessage());
+                e.printStackTrace();
+
+                // Intentar crear un panel de respaldo en caso de error
+                try {
+                    JPanel fallbackPanel = new JPanel();
+                    fallbackPanel.setBackground(Color.WHITE);
+                    JLabel errorLabel = new JLabel("Error al inicializar LaTeX: " + e.getMessage());
+                    errorLabel.setForeground(Color.RED);
+                    fallbackPanel.add(errorLabel);
+                    latexRender.setContent(fallbackPanel);
+                } catch (Exception ex) {
+                    System.err.println("Error al crear panel de respaldo: " + ex.getMessage());
+                    ex.printStackTrace();
+                }
+            }
+        });
     }
 
     private void updateLatexRender(String function) {
-        if (latexRender == null || function == null || function.trim().isEmpty()) {
-            return;
-        }
+        // Usar SwingUtilities.invokeLater para asegurar que la actualización se realice en el hilo de Swing
+        SwingUtilities.invokeLater(() -> {
+            try {
+                System.out.println("Actualizando renderizado LaTeX para: " + function);
 
-        try {
-            // Convertir la función a formato LaTeX
-            String latexString = ConvertidorLatex.toLatex(function);
+                if (latexRender == null) {
+                    System.err.println("Error: latexRender es null");
+                    return;
+                }
 
-            // Crear la fórmula LaTeX
-            TeXFormula formula = new TeXFormula(latexString);
+                if (function == null || function.trim().isEmpty()) {
+                    // Mostrar un mensaje de espera en lugar de retornar silenciosamente
+                    JPanel panel = new JPanel();
+                    panel.setBackground(Color.WHITE);
+                    JLabel waitingLabel = new JLabel("Esperando entrada de función...");
+                    waitingLabel.setForeground(Color.GRAY);
+                    panel.add(waitingLabel);
+                    latexRender.setContent(panel);
+                    return;
+                }
 
-            // Crear un icono TeXIcon a partir de la fórmula
-            TeXIcon icon = formula.createTeXIcon(TeXConstants.STYLE_DISPLAY, 20);
+                // Convertir la función a formato LaTeX
+                String latexString = ConvertidorLatex.toLatex(function);
+                System.out.println("Función convertida a LaTeX: " + latexString);
 
-            // Configurar dimensiones
-            icon.setInsets(new Insets(5, 5, 5, 5));
+                // Crear la fórmula LaTeX
+                TeXFormula formula = new TeXFormula(latexString);
 
-            // Crear un JLabel para mostrar el icono
-            JLabel label = new JLabel(icon);
-            label.setForeground(Color.BLACK);
+                // Crear un icono TeXIcon a partir de la fórmula
+                TeXIcon icon = formula.createTeXIcon(TeXConstants.STYLE_DISPLAY, 20);
 
-            // Crear un panel para contener el label
-            JPanel panel = new JPanel();
-            panel.setBackground(Color.WHITE);
-            panel.add(label);
+                // Configurar dimensiones
+                icon.setInsets(new Insets(5, 5, 5, 5));
 
-            // Actualizar el contenido del SwingNode
-            latexRender.setContent(panel);
-        } catch (Exception e) {
-            // En caso de error, mostrar un mensaje simple
-            JPanel panel = new JPanel();
-            panel.setBackground(Color.WHITE);
-            panel.add(new JLabel("Error al renderizar LaTeX: " + e.getMessage()));
-            latexRender.setContent(panel);
-        }
+                // Crear un JLabel para mostrar el icono
+                JLabel label = new JLabel(icon);
+                label.setForeground(Color.BLACK);
+
+                // Crear un panel para contener el label
+                JPanel panel = new JPanel();
+                panel.setBackground(Color.WHITE);
+                panel.add(label);
+
+                // Actualizar el contenido del SwingNode
+                latexRender.setContent(panel);
+                System.out.println("Renderizado LaTeX actualizado correctamente");
+            } catch (Exception e) {
+                System.err.println("Error al renderizar LaTeX: " + e.getMessage());
+                e.printStackTrace();
+
+                // En caso de error, mostrar un mensaje más detallado
+                try {
+                    JPanel panel = new JPanel();
+                    panel.setBackground(Color.WHITE);
+                    JLabel errorLabel = new JLabel("Error al renderizar LaTeX: " + e.getMessage());
+                    errorLabel.setForeground(Color.RED);
+                    panel.add(errorLabel);
+                    latexRender.setContent(panel);
+                } catch (Exception ex) {
+                    System.err.println("Error al crear panel de error: " + ex.getMessage());
+                    ex.printStackTrace();
+                }
+            }
+        });
     }
 
     private void setupSymbolButtons() {
-        if (symbolButtons == null) {
-            return;
-        }
+        // Usar Platform.runLater para asegurar que la inicialización se realice en el hilo de JavaFX
+        // después de que la escena esté completamente cargada
+        Platform.runLater(() -> {
+            try {
+                System.out.println("Iniciando configuración de botones de símbolos...");
 
-        // Limpiar botones existentes
-        symbolButtons.getChildren().clear();
-
-        // Definir símbolos matemáticos comunes
-        String[] symbols = {
-            "+", "-", "*", "/", "^", "√", "π", 
-            "sin", "cos", "tan", "log", "ln", 
-            "(", ")", "=", "x", "e"
-        };
-
-        // Crear botones para cada símbolo
-        for (String symbol : symbols) {
-            Button btn = new Button(symbol);
-            btn.getStyleClass().add("symbol-button");
-
-            // Configurar acción al hacer clic
-            btn.setOnAction(event -> {
-                if (txtFunction != null) {
-                    // Obtener posición actual del cursor
-                    int caretPosition = txtFunction.getCaretPosition();
-
-                    // Obtener texto actual
-                    String currentText = txtFunction.getText();
-
-                    // Texto a insertar (con ajustes para funciones especiales)
-                    String insertText = symbol;
-                    if (symbol.equals("√")) {
-                        insertText = "sqrt(";
-                    } else if (symbol.equals("π")) {
-                        insertText = "pi";
-                    } else if (symbol.equals("sin") || symbol.equals("cos") || 
-                               symbol.equals("tan") || symbol.equals("log") || 
-                               symbol.equals("ln")) {
-                        insertText = symbol + "(";
-                    }
-
-                    // Insertar símbolo en la posición del cursor
-                    String newText = currentText.substring(0, caretPosition) + 
-                                    insertText + 
-                                    currentText.substring(caretPosition);
-
-                    // Actualizar texto
-                    txtFunction.setText(newText);
-
-                    // Mover cursor después del símbolo insertado
-                    txtFunction.positionCaret(caretPosition + insertText.length());
-
-                    // Dar foco al campo de texto
-                    txtFunction.requestFocus();
+                if (symbolButtons == null) {
+                    System.err.println("Error: symbolButtons es null");
+                    return;
                 }
-            });
 
-            // Añadir botón al contenedor
-            symbolButtons.getChildren().add(btn);
+                // Limpiar botones existentes
+                symbolButtons.getChildren().clear();
+
+                // Definir símbolos matemáticos comunes
+                String[] symbols = {
+                    "+", "-", "*", "/", "^", "√", "π", 
+                    "sin", "cos", "tan", "log", "ln", 
+                    "(", ")", "=", "x", "e"
+                };
+
+                System.out.println("Creando " + symbols.length + " botones de símbolos");
+
+                // Crear botones para cada símbolo
+                for (String symbol : symbols) {
+                    try {
+                        Button btn = new Button(symbol);
+                        btn.getStyleClass().add("symbol-button");
+
+                        // Asegurar que el botón sea clickeable
+                        btn.setDisable(false);
+                        btn.setFocusTraversable(false); // No robar el foco
+
+                        // Configurar acción al hacer clic
+                        btn.setOnAction(event -> {
+                            try {
+                                if (txtFunction != null) {
+                                    // Obtener posición actual del cursor
+                                    int caretPosition = txtFunction.getCaretPosition();
+
+                                    // Obtener texto actual
+                                    String currentText = txtFunction.getText();
+
+                                    // Texto a insertar (con ajustes para funciones especiales)
+                                    String insertText = symbol;
+                                    if (symbol.equals("√")) {
+                                        insertText = "sqrt(";
+                                    } else if (symbol.equals("π")) {
+                                        insertText = "pi";
+                                    } else if (symbol.equals("sin") || symbol.equals("cos") || 
+                                               symbol.equals("tan") || symbol.equals("log") || 
+                                               symbol.equals("ln")) {
+                                        insertText = symbol + "(";
+                                    }
+
+                                    // Insertar símbolo en la posición del cursor
+                                    String newText = currentText.substring(0, caretPosition) + 
+                                                    insertText + 
+                                                    currentText.substring(caretPosition);
+
+                                    // Actualizar texto
+                                    txtFunction.setText(newText);
+
+                                    // Mover cursor después del símbolo insertado
+                                    txtFunction.positionCaret(caretPosition + insertText.length());
+
+                                    // Dar foco al campo de texto
+                                    txtFunction.requestFocus();
+
+                                    // Actualizar renderizado LaTeX si está disponible
+                                    updateLatexRender(newText);
+                                } else {
+                                    System.err.println("Error: txtFunction es null al intentar insertar símbolo " + symbol);
+                                }
+                            } catch (Exception e) {
+                                System.err.println("Error al insertar símbolo " + symbol + ": " + e.getMessage());
+                                e.printStackTrace();
+                            }
+                        });
+
+                        // Añadir tooltip para ayudar al usuario
+                        Tooltip tooltip = new Tooltip("Insertar " + getSymbolDescription(symbol));
+                        Tooltip.install(btn, tooltip);
+
+                        // Añadir botón al contenedor
+                        symbolButtons.getChildren().add(btn);
+                    } catch (Exception e) {
+                        System.err.println("Error al crear botón para símbolo " + symbol + ": " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+
+                System.out.println("Configuración de botones de símbolos completada");
+            } catch (Exception e) {
+                System.err.println("Error al configurar botones de símbolos: " + e.getMessage());
+                e.printStackTrace();
+            }
+        });
+    }
+
+    /**
+     * Obtiene una descripción para un símbolo matemático
+     */
+    private String getSymbolDescription(String symbol) {
+        switch (symbol) {
+            case "+": return "suma";
+            case "-": return "resta";
+            case "*": return "multiplicación";
+            case "/": return "división";
+            case "^": return "potencia";
+            case "√": return "raíz cuadrada";
+            case "π": return "pi (3.14159...)";
+            case "e": return "número de Euler (2.71828...)";
+            case "sin": return "seno";
+            case "cos": return "coseno";
+            case "tan": return "tangente";
+            case "log": return "logaritmo base 10";
+            case "ln": return "logaritmo natural";
+            case "(": return "paréntesis izquierdo";
+            case ")": return "paréntesis derecho";
+            case "=": return "igual";
+            case "x": return "variable x";
+            default: return symbol;
         }
     }
 
@@ -1829,30 +2411,156 @@ public class JavaFXGraficaController extends TopBarController {
 
         String function = functions.get(selectedIndex);
 
-        // Crear calculadora de derivadas
-        DerivativeCalculator calculator = new DerivativeCalculator();
+        // Crear diálogo para opciones de derivada
+        javafx.scene.control.Dialog<javafx.util.Pair<Integer, Boolean>> dialog = new javafx.scene.control.Dialog<>();
+        dialog.setTitle("Opciones de Derivada");
+        dialog.setHeaderText("Configurar opciones para la derivada de f(x) = " + function);
 
+        // Botones
+        dialog.getDialogPane().getButtonTypes().addAll(javafx.scene.control.ButtonType.OK, javafx.scene.control.ButtonType.CANCEL);
+
+        // Crear layout
+        javafx.scene.layout.GridPane grid = new javafx.scene.layout.GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new javafx.geometry.Insets(20, 150, 10, 10));
+
+        // Spinner para orden de derivada
+        javafx.scene.control.Spinner<Integer> orderSpinner = new javafx.scene.control.Spinner<>(1, 5, 1);
+        orderSpinner.setEditable(true);
+        orderSpinner.getValueFactory().setWrapAround(false);
+
+        // Checkbox para mostrar puntos críticos
+        javafx.scene.control.CheckBox showCriticalPoints = new javafx.scene.control.CheckBox("Mostrar puntos críticos");
+        showCriticalPoints.setSelected(true);
+
+        // Añadir controles al grid
+        grid.add(new javafx.scene.control.Label("Orden de la derivada:"), 0, 0);
+        grid.add(orderSpinner, 1, 0);
+        grid.add(showCriticalPoints, 0, 1, 2, 1);
+
+        dialog.getDialogPane().setContent(grid);
+
+        // Convertir resultado
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == javafx.scene.control.ButtonType.OK) {
+                return new javafx.util.Pair<>(orderSpinner.getValue(), showCriticalPoints.isSelected());
+            }
+            return null;
+        });
+
+        // Mostrar diálogo y procesar resultado
+        dialog.showAndWait().ifPresent(result -> {
+            int order = result.getKey();
+            boolean findCriticalPoints = result.getValue();
+
+            // Crear calculadora de derivadas
+            DerivativeCalculator calculator = new DerivativeCalculator();
+
+            try {
+                // Variable para almacenar la función derivada actual
+                String currentFunction = function;
+                String derivative = "";
+
+                // Calcular la derivada del orden especificado
+                for (int i = 1; i <= order; i++) {
+                    derivative = calculator.differentiate(currentFunction);
+                    currentFunction = derivative;
+                }
+
+                // Crear nombre para la derivada según el orden
+                String derivativeName;
+                if (order == 1) {
+                    derivativeName = "f'(x)";
+                } else if (order == 2) {
+                    derivativeName = "f''(x)";
+                } else {
+                    derivativeName = "f^(" + order + ")(x)";
+                }
+
+                // Mostrar la derivada
+                showNotification("Derivada de orden " + order + " de f(x) = " + function + " es " + derivativeName + " = " + derivative);
+
+                // Añadir la derivada a la lista de funciones
+                functions.add(derivative);
+
+                // Actualizar la lista visual
+                updateFunctionsList();
+
+                // Graficar todas las funciones incluyendo la nueva derivada
+                graficarFunciones();
+
+                // Seleccionar la nueva función (derivada)
+                lstFunctions.getSelectionModel().select(functions.size() - 1);
+                selectFunction(functions.size() - 1);
+
+                // Si se solicitó, encontrar y mostrar puntos críticos
+                if (findCriticalPoints) {
+                    findCriticalPoints(derivative);
+                }
+            } catch (Exception e) {
+                showNotification("Error al calcular la derivada: " + e.getMessage());
+            }
+        });
+    }
+
+    /**
+     * Encuentra y muestra los puntos críticos de una función
+     * @param function La función a analizar
+     */
+    private void findCriticalPoints(String function) {
         try {
-            // Calcular la derivada simbólica
-            String derivative = calculator.differentiate(function);
+            // Buscar puntos donde la derivada es cero (puntos críticos)
+            List<Double> criticalPoints = new ArrayList<>();
 
-            // Mostrar la derivada
-            showNotification("Derivada de f(x) = " + function + " es f'(x) = " + derivative);
+            // Buscar en un rango razonable
+            double searchMin = xMin - 10;
+            double searchMax = xMax + 10;
+            double step = (searchMax - searchMin) / 100;
 
-            // Añadir la derivada a la lista de funciones
-            functions.add(derivative);
+            // Buscar cambios de signo en la función
+            Double lastY = null;
+            for (double x = searchMin; x <= searchMax; x += step) {
+                try {
+                    double y = evaluarFuncion(function, x);
 
-            // Actualizar la lista visual
-            updateFunctionsList();
+                    if (lastY != null && ((lastY < 0 && y >= 0) || (lastY > 0 && y <= 0))) {
+                        // Encontramos un cambio de signo, refinar con bisección
+                        double criticalX = findRootBisection(function, x - step, x, 1e-6, 50);
+                        if (!Double.isNaN(criticalX)) {
+                            criticalPoints.add(criticalX);
+                        }
+                    }
 
-            // Graficar todas las funciones incluyendo la nueva derivada
-            graficarFunciones();
+                    lastY = y;
+                } catch (Exception e) {
+                    // Ignorar errores en la evaluación
+                    lastY = null;
+                }
+            }
 
-            // Seleccionar la nueva función (derivada)
-            lstFunctions.getSelectionModel().select(functions.size() - 1);
-            selectFunction(functions.size() - 1);
+            // Mostrar puntos críticos encontrados
+            if (!criticalPoints.isEmpty()) {
+                StringBuilder message = new StringBuilder("Puntos críticos encontrados:\n");
+
+                for (Double x : criticalPoints) {
+                    // Evaluar la función original en el punto crítico
+                    double y = evaluarFuncion(functions.get(lstFunctions.getSelectionModel().getSelectedIndex() - 1), x);
+                    message.append(String.format("x = %.4f, f(x) = %.4f\n", x, y));
+
+                    // Añadir un punto visual en el gráfico
+                    DoubleDataSet pointDataSet = new DoubleDataSet("Punto crítico");
+                    pointDataSet.add(x, y);
+                    pointDataSet.setStyle("strokeColor=red;strokeWidth=0;pointSize=8");
+                    chart.getDatasets().add(pointDataSet);
+                }
+
+                showNotification(message.toString());
+            } else {
+                showNotification("No se encontraron puntos críticos en el rango visible.");
+            }
         } catch (Exception e) {
-            showNotification("Error al calcular la derivada: " + e.getMessage());
+            showNotification("Error al buscar puntos críticos: " + e.getMessage());
         }
     }
 
@@ -1866,30 +2574,198 @@ public class JavaFXGraficaController extends TopBarController {
 
         String function = functions.get(selectedIndex);
 
-        // Crear calculadora de integrales
-        IntegralCalculator calculator = new IntegralCalculator();
+        // Crear diálogo para opciones de integral
+        javafx.scene.control.Dialog<javafx.util.Pair<Boolean, javafx.util.Pair<Double, Double>>> dialog = 
+            new javafx.scene.control.Dialog<>();
+        dialog.setTitle("Opciones de Integral");
+        dialog.setHeaderText("Configurar opciones para la integral de f(x) = " + function);
 
+        // Botones
+        dialog.getDialogPane().getButtonTypes().addAll(javafx.scene.control.ButtonType.OK, javafx.scene.control.ButtonType.CANCEL);
+
+        // Crear layout
+        javafx.scene.layout.GridPane grid = new javafx.scene.layout.GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new javafx.geometry.Insets(20, 150, 10, 10));
+
+        // Radio buttons para tipo de integral
+        javafx.scene.control.ToggleGroup integralTypeGroup = new javafx.scene.control.ToggleGroup();
+        javafx.scene.control.RadioButton indefiniteRadio = new javafx.scene.control.RadioButton("Integral Indefinida");
+        indefiniteRadio.setToggleGroup(integralTypeGroup);
+        indefiniteRadio.setSelected(true);
+
+        javafx.scene.control.RadioButton definiteRadio = new javafx.scene.control.RadioButton("Integral Definida");
+        definiteRadio.setToggleGroup(integralTypeGroup);
+
+        // Campos para límites de integración
+        javafx.scene.control.TextField lowerBoundField = new javafx.scene.control.TextField(String.valueOf(xMin));
+        lowerBoundField.setPromptText("Límite inferior");
+        lowerBoundField.setDisable(true);
+
+        javafx.scene.control.TextField upperBoundField = new javafx.scene.control.TextField(String.valueOf(xMax));
+        upperBoundField.setPromptText("Límite superior");
+        upperBoundField.setDisable(true);
+
+        // Checkbox para visualizar área
+        javafx.scene.control.CheckBox visualizeAreaCheck = new javafx.scene.control.CheckBox("Visualizar área bajo la curva");
+        visualizeAreaCheck.setSelected(true);
+        visualizeAreaCheck.setDisable(true);
+
+        // Habilitar/deshabilitar campos según el tipo de integral
+        definiteRadio.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            lowerBoundField.setDisable(!newVal);
+            upperBoundField.setDisable(!newVal);
+            visualizeAreaCheck.setDisable(!newVal);
+        });
+
+        // Añadir controles al grid
+        grid.add(new javafx.scene.control.Label("Tipo de integral:"), 0, 0);
+        grid.add(indefiniteRadio, 1, 0);
+        grid.add(definiteRadio, 1, 1);
+
+        grid.add(new javafx.scene.control.Label("Límite inferior:"), 0, 2);
+        grid.add(lowerBoundField, 1, 2);
+
+        grid.add(new javafx.scene.control.Label("Límite superior:"), 0, 3);
+        grid.add(upperBoundField, 1, 3);
+
+        grid.add(visualizeAreaCheck, 0, 4, 2, 1);
+
+        dialog.getDialogPane().setContent(grid);
+
+        // Convertir resultado
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == javafx.scene.control.ButtonType.OK) {
+                boolean isDefinite = definiteRadio.isSelected();
+
+                double lowerBound = xMin;
+                double upperBound = xMax;
+
+                if (isDefinite) {
+                    try {
+                        lowerBound = Double.parseDouble(lowerBoundField.getText());
+                        upperBound = Double.parseDouble(upperBoundField.getText());
+                    } catch (NumberFormatException e) {
+                        // Usar valores predeterminados si hay error
+                        lowerBound = xMin;
+                        upperBound = xMax;
+                    }
+                }
+
+                return new javafx.util.Pair<>(isDefinite, new javafx.util.Pair<>(lowerBound, upperBound));
+            }
+            return null;
+        });
+
+        // Mostrar diálogo y procesar resultado
+        dialog.showAndWait().ifPresent(result -> {
+            boolean isDefinite = result.getKey();
+            double lowerBound = result.getValue().getKey();
+            double upperBound = result.getValue().getValue();
+
+            // Crear calculadora de integrales
+            IntegralCalculator calculator = new IntegralCalculator();
+
+            try {
+                if (isDefinite) {
+                    // Calcular la integral definida
+                    double integralValue = calculator.evaluateDefiniteIntegral(function, lowerBound, upperBound);
+
+                    // Mostrar el resultado
+                    showNotification(String.format(
+                        "Integral definida de f(x) = %s desde x = %.2f hasta x = %.2f es: %.6f",
+                        function, lowerBound, upperBound, integralValue));
+
+                    // Visualizar el área si se solicitó
+                    if (visualizeAreaCheck.isSelected()) {
+                        visualizeAreaUnderCurve(function, lowerBound, upperBound);
+                    }
+                } else {
+                    // Calcular la integral indefinida
+                    String integral = calculator.integrate(function);
+
+                    // Mostrar la integral
+                    showNotification("Integral indefinida de f(x) = " + function + " es ∫f(x)dx = " + integral + " + C");
+
+                    // Añadir la integral a la lista de funciones
+                    functions.add(integral);
+
+                    // Actualizar la lista visual
+                    updateFunctionsList();
+
+                    // Graficar todas las funciones incluyendo la nueva integral
+                    graficarFunciones();
+
+                    // Seleccionar la nueva función (integral)
+                    lstFunctions.getSelectionModel().select(functions.size() - 1);
+                    selectFunction(functions.size() - 1);
+                }
+            } catch (Exception e) {
+                showNotification("Error al calcular la integral: " + e.getMessage());
+            }
+        });
+    }
+
+    /**
+     * Visualiza el área bajo la curva entre dos puntos
+     * @param function La función a integrar
+     * @param lowerBound Límite inferior
+     * @param upperBound Límite superior
+     */
+    private void visualizeAreaUnderCurve(String function, double lowerBound, double upperBound) {
         try {
-            // Calcular la integral indefinida
-            String integral = calculator.integrate(function);
+            // Crear un conjunto de datos para el área
+            DoubleDataSet areaDataSet = new DoubleDataSet("Área bajo la curva");
 
-            // Mostrar la integral
-            showNotification("Integral de f(x) = " + function + " es ∫f(x)dx = " + integral + " + C");
+            // Número de puntos para la visualización
+            int numPoints = 200;
+            double step = (upperBound - lowerBound) / numPoints;
 
-            // Añadir la integral a la lista de funciones
-            functions.add(integral);
+            // Añadir puntos para el polígono del área
+            // Primero añadir el punto inferior izquierdo
+            areaDataSet.add(lowerBound, 0);
 
-            // Actualizar la lista visual
-            updateFunctionsList();
+            // Añadir puntos a lo largo de la curva
+            for (double x = lowerBound; x <= upperBound; x += step) {
+                double y = evaluarFuncion(function, x);
+                if (!Double.isNaN(y) && !Double.isInfinite(y)) {
+                    areaDataSet.add(x, y);
+                }
+            }
 
-            // Graficar todas las funciones incluyendo la nueva integral
-            graficarFunciones();
+            // Añadir el punto inferior derecho para cerrar el polígono
+            areaDataSet.add(upperBound, 0);
 
-            // Seleccionar la nueva función (integral)
-            lstFunctions.getSelectionModel().select(functions.size() - 1);
-            selectFunction(functions.size() - 1);
+            // Configurar estilo para el área
+            String color = COLORS[functions.indexOf(function) % COLORS.length];
+            // Convertir color a formato RGBA con transparencia
+            String fillColor = color.replace("#", "rgba(") + ", 0.3)";
+            areaDataSet.setStyle("strokeColor=" + color + ";fillColor=" + fillColor + ";strokeWidth=1.5;areaStyle=filled");
+
+            // Añadir el conjunto de datos al gráfico
+            chart.getDatasets().add(areaDataSet);
+
+            // Calcular el valor de la integral para mostrar en la etiqueta
+            IntegralCalculator calculator = new IntegralCalculator();
+            double integralValue = calculator.evaluateDefiniteIntegral(function, lowerBound, upperBound);
+
+            // Añadir una etiqueta con el valor del área
+            double labelX = lowerBound + (upperBound - lowerBound) / 2;
+            double labelY = evaluarFuncion(function, labelX) / 2;
+
+            // Crear un conjunto de datos para la etiqueta
+            DoubleDataSet labelDataSet = new DoubleDataSet("Valor del área");
+            labelDataSet.add(labelX, labelY);
+            labelDataSet.setStyle("strokeColor=transparent;pointSize=0");
+
+            // Añadir metadatos para mostrar el valor en el tooltip
+            labelDataSet.getDataLabelMap().put(0, String.format("Área = %.4f", integralValue));
+
+            chart.getDatasets().add(labelDataSet);
+
         } catch (Exception e) {
-            showNotification("Error al calcular la integral: " + e.getMessage());
+            showNotification("Error al visualizar el área: " + e.getMessage());
         }
     }
 
@@ -2098,6 +2974,594 @@ public class JavaFXGraficaController extends TopBarController {
             items.add("f" + (i+1) + "(x) = " + functions.get(i));
         }
         lstFunctions.setItems(items);
+    }
+
+    /**
+     * Analiza la función seleccionada para encontrar características importantes
+     */
+    private void analyzeFunction() {
+        // Verificar que hay una función seleccionada
+        int selectedIndex = lstFunctions.getSelectionModel().getSelectedIndex();
+        if (selectedIndex < 0 || selectedIndex >= functions.size()) {
+            showNotification("Seleccione una función para analizar");
+            return;
+        }
+
+        String function = functions.get(selectedIndex);
+
+        // Crear ventana de análisis
+        Stage analysisStage = new Stage();
+        analysisStage.setTitle("Análisis de función: f(x) = " + function);
+        analysisStage.initModality(javafx.stage.Modality.WINDOW_MODAL);
+        analysisStage.initOwner(chart.getScene().getWindow());
+
+        // Crear layout
+        javafx.scene.layout.VBox root = new javafx.scene.layout.VBox(10);
+        root.setPadding(new javafx.geometry.Insets(20));
+        root.setStyle("-fx-background-color: #0A0629;");
+
+        // Título
+        javafx.scene.control.Label titleLabel = new javafx.scene.control.Label("Análisis de f(x) = " + function);
+        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+        // Crear TabPane para organizar el análisis
+        javafx.scene.control.TabPane tabPane = new javafx.scene.control.TabPane();
+        tabPane.setTabClosingPolicy(javafx.scene.control.TabPane.TabClosingPolicy.UNAVAILABLE);
+
+        // Tab para información general
+        javafx.scene.control.Tab generalTab = new javafx.scene.control.Tab("General");
+        javafx.scene.layout.VBox generalContent = new javafx.scene.layout.VBox(10);
+        generalContent.setPadding(new javafx.geometry.Insets(10));
+        generalContent.setStyle("-fx-background-color: #1A1640;");
+
+        // Buscar dominio, rango, etc.
+        try {
+            // Verificar si es una función racional (tiene divisiones)
+            boolean isRational = function.contains("/");
+
+            // Texto para el dominio
+            String domainText = "Dominio: ";
+            if (isRational) {
+                domainText += "ℝ excepto donde el denominador es cero";
+            } else {
+                domainText += "ℝ (todos los números reales)";
+            }
+
+            // Verificar si es una función par, impar o ninguna
+            String symmetryText = "Simetría: ";
+            try {
+                // Evaluar f(-x) y comparar con f(x) o -f(x)
+                String minusXExpr = function.replaceAll("(?<![a-zA-Z0-9_])x(?![a-zA-Z0-9_])", "(-x)");
+
+                // Evaluar en algunos puntos de prueba
+                boolean mightBeEven = true;
+                boolean mightBeOdd = true;
+
+                for (double testX : new double[]{1.0, 2.0, 3.14, 5.0}) {
+                    if (testX != 0) { // Evitar x=0 donde par e impar son indistinguibles
+                        double fx = evaluarFuncion(function, testX);
+                        double fMinusX = evaluarFuncion(minusXExpr, testX); // Realmente evaluando f(-x)
+
+                        // Comprobar si f(-x) = f(x) (función par)
+                        if (Math.abs(fMinusX - fx) > 1e-10) {
+                            mightBeEven = false;
+                        }
+
+                        // Comprobar si f(-x) = -f(x) (función impar)
+                        if (Math.abs(fMinusX + fx) > 1e-10) {
+                            mightBeOdd = false;
+                        }
+
+                        // Si ya sabemos que no es ni par ni impar, salir del bucle
+                        if (!mightBeEven && !mightBeOdd) {
+                            break;
+                        }
+                    }
+                }
+
+                if (mightBeEven) {
+                    symmetryText += "Función par (simétrica respecto al eje Y)";
+                } else if (mightBeOdd) {
+                    symmetryText += "Función impar (simétrica respecto al origen)";
+                } else {
+                    symmetryText += "No tiene simetría par ni impar";
+                }
+            } catch (Exception e) {
+                symmetryText += "No se pudo determinar";
+            }
+
+            // Buscar intersecciones con los ejes
+            List<Double> xIntercepts = findRoots(function, xMin, xMax);
+            String xInterceptsText = "Intersecciones con eje X: ";
+            if (xIntercepts.isEmpty()) {
+                xInterceptsText += "No se encontraron en el rango visible";
+            } else {
+                xInterceptsText += xIntercepts.stream()
+                    .map(x -> String.format("(%.4f, 0)", x))
+                    .reduce((a, b) -> a + ", " + b)
+                    .orElse("");
+            }
+
+            // Intersección con eje Y (evaluar en x=0)
+            String yInterceptText = "Intersección con eje Y: ";
+            try {
+                double y0 = evaluarFuncion(function, 0);
+                yInterceptText += String.format("(0, %.4f)", y0);
+            } catch (Exception e) {
+                yInterceptText += "No definida en x=0";
+            }
+
+            // Añadir información al panel general
+            generalContent.getChildren().addAll(
+                createInfoLabel(domainText),
+                createInfoLabel(symmetryText),
+                createInfoLabel(xInterceptsText),
+                createInfoLabel(yInterceptText)
+            );
+
+        } catch (Exception e) {
+            generalContent.getChildren().add(
+                createInfoLabel("Error al analizar la función: " + e.getMessage())
+            );
+        }
+
+        generalTab.setContent(generalContent);
+
+        // Tab para derivadas
+        javafx.scene.control.Tab derivativesTab = new javafx.scene.control.Tab("Derivadas");
+        javafx.scene.layout.VBox derivativesContent = new javafx.scene.layout.VBox(10);
+        derivativesContent.setPadding(new javafx.geometry.Insets(10));
+        derivativesContent.setStyle("-fx-background-color: #1A1640;");
+
+        try {
+            DerivativeCalculator calculator = new DerivativeCalculator();
+
+            // Primera derivada
+            String firstDerivative = calculator.differentiate(function);
+            derivativesContent.getChildren().add(
+                createInfoLabel("Primera derivada: f'(x) = " + firstDerivative)
+            );
+
+            // Segunda derivada
+            String secondDerivative = calculator.differentiate(firstDerivative);
+            derivativesContent.getChildren().add(
+                createInfoLabel("Segunda derivada: f''(x) = " + secondDerivative)
+            );
+
+            // Puntos críticos (donde f'(x) = 0)
+            List<Double> criticalPoints = findRoots(firstDerivative, xMin, xMax);
+
+            if (!criticalPoints.isEmpty()) {
+                javafx.scene.layout.VBox criticalPointsBox = new javafx.scene.layout.VBox(5);
+                criticalPointsBox.getChildren().add(
+                    createInfoLabel("Puntos críticos (f'(x) = 0):")
+                );
+
+                for (Double x : criticalPoints) {
+                    double fx = evaluarFuncion(function, x);
+                    double f2x = evaluarFuncion(secondDerivative, x);
+
+                    String pointType;
+                    if (f2x < 0) {
+                        pointType = "Máximo local";
+                    } else if (f2x > 0) {
+                        pointType = "Mínimo local";
+                    } else {
+                        pointType = "Punto de inflexión o indeterminado";
+                    }
+
+                    criticalPointsBox.getChildren().add(
+                        createInfoLabel(String.format("   x = %.4f, f(x) = %.4f - %s", x, fx, pointType))
+                    );
+                }
+
+                derivativesContent.getChildren().add(criticalPointsBox);
+            } else {
+                derivativesContent.getChildren().add(
+                    createInfoLabel("No se encontraron puntos críticos en el rango visible")
+                );
+            }
+
+            // Puntos de inflexión (donde f''(x) = 0)
+            List<Double> inflectionPoints = findRoots(secondDerivative, xMin, xMax);
+
+            if (!inflectionPoints.isEmpty()) {
+                javafx.scene.layout.VBox inflectionPointsBox = new javafx.scene.layout.VBox(5);
+                inflectionPointsBox.getChildren().add(
+                    createInfoLabel("Puntos de inflexión (f''(x) = 0):")
+                );
+
+                for (Double x : inflectionPoints) {
+                    double fx = evaluarFuncion(function, x);
+
+                    inflectionPointsBox.getChildren().add(
+                        createInfoLabel(String.format("   x = %.4f, f(x) = %.4f", x, fx))
+                    );
+                }
+
+                derivativesContent.getChildren().add(inflectionPointsBox);
+            } else {
+                derivativesContent.getChildren().add(
+                    createInfoLabel("No se encontraron puntos de inflexión en el rango visible")
+                );
+            }
+
+        } catch (Exception e) {
+            derivativesContent.getChildren().add(
+                createInfoLabel("Error al calcular derivadas: " + e.getMessage())
+            );
+        }
+
+        derivativesTab.setContent(derivativesContent);
+
+        // Tab para integrales
+        javafx.scene.control.Tab integralsTab = new javafx.scene.control.Tab("Integrales");
+        javafx.scene.layout.VBox integralsContent = new javafx.scene.layout.VBox(10);
+        integralsContent.setPadding(new javafx.geometry.Insets(10));
+        integralsContent.setStyle("-fx-background-color: #1A1640;");
+
+        try {
+            IntegralCalculator calculator = new IntegralCalculator();
+
+            // Integral indefinida
+            String indefiniteIntegral = calculator.integrate(function);
+            integralsContent.getChildren().add(
+                createInfoLabel("Integral indefinida: ∫f(x)dx = " + indefiniteIntegral + " + C")
+            );
+
+            // Integral definida en el rango visible
+            double definiteIntegral = calculator.evaluateDefiniteIntegral(function, xMin, xMax);
+            integralsContent.getChildren().add(
+                createInfoLabel(String.format(
+                    "Integral definida en [%.2f, %.2f]: %.6f", 
+                    xMin, xMax, definiteIntegral))
+            );
+
+            // Añadir controles para calcular integrales definidas personalizadas
+            javafx.scene.layout.HBox customIntegralBox = new javafx.scene.layout.HBox(10);
+
+            javafx.scene.control.TextField lowerBoundField = new javafx.scene.control.TextField(String.valueOf(xMin));
+            lowerBoundField.setPromptText("Límite inferior");
+            lowerBoundField.setPrefWidth(100);
+
+            javafx.scene.control.TextField upperBoundField = new javafx.scene.control.TextField(String.valueOf(xMax));
+            upperBoundField.setPromptText("Límite superior");
+            upperBoundField.setPrefWidth(100);
+
+            javafx.scene.control.Button calculateButton = new javafx.scene.control.Button("Calcular");
+
+            javafx.scene.control.Label resultLabel = new javafx.scene.control.Label("Resultado: ");
+            resultLabel.setStyle("-fx-text-fill: white;");
+
+            calculateButton.setOnAction(e -> {
+                try {
+                    double lower = Double.parseDouble(lowerBoundField.getText());
+                    double upper = Double.parseDouble(upperBoundField.getText());
+
+                    double result = calculator.evaluateDefiniteIntegral(function, lower, upper);
+                    resultLabel.setText(String.format("Resultado: %.6f", result));
+                } catch (Exception ex) {
+                    resultLabel.setText("Error: " + ex.getMessage());
+                }
+            });
+
+            customIntegralBox.getChildren().addAll(
+                new javafx.scene.control.Label("Desde:"), lowerBoundField,
+                new javafx.scene.control.Label("Hasta:"), upperBoundField,
+                calculateButton
+            );
+
+            integralsContent.getChildren().addAll(
+                new javafx.scene.control.Label("Calcular integral definida personalizada:"),
+                customIntegralBox,
+                resultLabel
+            );
+
+        } catch (Exception e) {
+            integralsContent.getChildren().add(
+                createInfoLabel("Error al calcular integrales: " + e.getMessage())
+            );
+        }
+
+        integralsTab.setContent(integralsContent);
+
+        // Añadir tabs al TabPane
+        tabPane.getTabs().addAll(generalTab, derivativesTab, integralsTab);
+
+        // Botón para cerrar
+        javafx.scene.control.Button closeButton = new javafx.scene.control.Button("Cerrar");
+        closeButton.setOnAction(e -> analysisStage.close());
+
+        // Añadir componentes al layout principal
+        root.getChildren().addAll(titleLabel, tabPane, closeButton);
+
+        // Configurar y mostrar la ventana
+        Scene scene = new Scene(root, 600, 500);
+        analysisStage.setScene(scene);
+        analysisStage.show();
+    }
+
+    /**
+     * Crea una etiqueta de información con estilo predefinido
+     */
+    private javafx.scene.control.Label createInfoLabel(String text) {
+        javafx.scene.control.Label label = new javafx.scene.control.Label(text);
+        label.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
+        label.setWrapText(true);
+        return label;
+    }
+
+    /**
+     * Encuentra las raíces de una función en un intervalo
+     */
+    private List<Double> findRoots(String function, double min, double max) {
+        List<Double> roots = new ArrayList<>();
+
+        // Número de subdivisiones para la búsqueda inicial
+        int divisions = 200;
+        double step = (max - min) / divisions;
+
+        // Buscar cambios de signo
+        Double lastY = null;
+        for (double x = min; x <= max; x += step) {
+            try {
+                double y = evaluarFuncion(function, x);
+
+                if (lastY != null) {
+                    // Si hay un cambio de signo o un cruce por cero
+                    if ((lastY < 0 && y >= 0) || (lastY > 0 && y <= 0) || 
+                        (Math.abs(y) < 1e-10)) {
+
+                        // Si y es muy cercano a cero, considerarlo una raíz directamente
+                        if (Math.abs(y) < 1e-10) {
+                            roots.add(x);
+                        } else {
+                            // Refinar con bisección
+                            double root = findRootBisection(function, x - step, x, 1e-6, 50);
+                            if (!Double.isNaN(root)) {
+                                roots.add(root);
+                            }
+                        }
+                    }
+                }
+
+                lastY = y;
+            } catch (Exception e) {
+                // Ignorar errores en la evaluación
+                lastY = null;
+            }
+        }
+
+        return roots;
+    }
+
+    /**
+     * Cambia el color de la función seleccionada
+     */
+    private void changeSelectedFunctionColor() {
+        // Verificar que hay una función seleccionada
+        int selectedIndex = lstFunctions.getSelectionModel().getSelectedIndex();
+        if (selectedIndex < 0 || selectedIndex >= functions.size()) {
+            showNotification("Seleccione una función para cambiar su color");
+            return;
+        }
+
+        String function = functions.get(selectedIndex);
+
+        // Crear selector de color
+        javafx.scene.control.ColorPicker colorPicker = new javafx.scene.control.ColorPicker();
+
+        // Obtener el color actual si es posible
+        try {
+            DoubleDataSet dataSet = dataSets.get(function);
+            if (dataSet != null) {
+                String style = dataSet.getStyle();
+                if (style != null && style.contains("strokeColor=")) {
+                    String colorStr = style.replaceAll(".*strokeColor=([^;]*).*", "$1");
+                    try {
+                        colorPicker.setValue(javafx.scene.paint.Color.web(colorStr));
+                    } catch (Exception e) {
+                        // Si no se puede parsear el color, usar uno predeterminado
+                        colorPicker.setValue(javafx.scene.paint.Color.web(COLORS[selectedIndex % COLORS.length]));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Usar color predeterminado si hay error
+            colorPicker.setValue(javafx.scene.paint.Color.web(COLORS[selectedIndex % COLORS.length]));
+        }
+
+        // Crear diálogo
+        javafx.scene.control.Dialog<javafx.scene.paint.Color> dialog = new javafx.scene.control.Dialog<>();
+        dialog.setTitle("Cambiar color de función");
+        dialog.setHeaderText("Seleccione un nuevo color para f(x) = " + function);
+
+        // Botones
+        dialog.getDialogPane().getButtonTypes().addAll(javafx.scene.control.ButtonType.OK, javafx.scene.control.ButtonType.CANCEL);
+
+        // Contenido
+        javafx.scene.layout.VBox content = new javafx.scene.layout.VBox(10);
+        content.setPadding(new javafx.geometry.Insets(20));
+        content.getChildren().add(colorPicker);
+
+        dialog.getDialogPane().setContent(content);
+
+        // Convertir resultado
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == javafx.scene.control.ButtonType.OK) {
+                return colorPicker.getValue();
+            }
+            return null;
+        });
+
+        // Mostrar diálogo y procesar resultado
+        dialog.showAndWait().ifPresent(color -> {
+            // Convertir color a formato hexadecimal
+            String colorHex = String.format("#%02X%02X%02X",
+                (int) (color.getRed() * 255),
+                (int) (color.getGreen() * 255),
+                (int) (color.getBlue() * 255));
+
+            // Actualizar el color de la función
+            DoubleDataSet dataSet = dataSets.get(function);
+            if (dataSet != null) {
+                String currentStyle = dataSet.getStyle();
+                String newStyle;
+
+                if (currentStyle != null && !currentStyle.isEmpty()) {
+                    // Reemplazar el color en el estilo existente
+                    newStyle = currentStyle.replaceAll("strokeColor=[^;]*", "strokeColor=" + colorHex);
+                } else {
+                    // Crear un nuevo estilo
+                    newStyle = "strokeColor=" + colorHex + ";strokeWidth=2";
+                }
+
+                dataSet.setStyle(newStyle);
+
+                // Actualizar la selección para mostrar el nuevo color
+                if (selectedFunctionIndex == selectedIndex) {
+                    highlightSelectedSeries(selectedIndex);
+                }
+            }
+        });
+    }
+
+    /**
+     * Cambia el estilo de la función seleccionada
+     */
+    private void changeSelectedFunctionStyle() {
+        // Verificar que hay una función seleccionada
+        int selectedIndex = lstFunctions.getSelectionModel().getSelectedIndex();
+        if (selectedIndex < 0 || selectedIndex >= functions.size()) {
+            showNotification("Seleccione una función para cambiar su estilo");
+            return;
+        }
+
+        String function = functions.get(selectedIndex);
+
+        // Crear diálogo
+        javafx.scene.control.Dialog<javafx.util.Pair<Double, String>> dialog = new javafx.scene.control.Dialog<>();
+        dialog.setTitle("Cambiar estilo de función");
+        dialog.setHeaderText("Configure el estilo para f(x) = " + function);
+
+        // Botones
+        dialog.getDialogPane().getButtonTypes().addAll(javafx.scene.control.ButtonType.OK, javafx.scene.control.ButtonType.CANCEL);
+
+        // Crear layout
+        javafx.scene.layout.GridPane grid = new javafx.scene.layout.GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new javafx.geometry.Insets(20, 150, 10, 10));
+
+        // Spinner para grosor de línea
+        javafx.scene.control.Spinner<Double> lineWidthSpinner = new javafx.scene.control.Spinner<>(0.5, 5.0, 2.0, 0.5);
+        lineWidthSpinner.setEditable(true);
+
+        // ComboBox para estilo de línea
+        javafx.scene.control.ComboBox<String> lineStyleCombo = new javafx.scene.control.ComboBox<>();
+        lineStyleCombo.getItems().addAll("Continua", "Discontinua", "Punteada", "Guiones largos");
+        lineStyleCombo.setValue("Continua");
+
+        // Obtener el estilo actual si es posible
+        try {
+            DoubleDataSet dataSet = dataSets.get(function);
+            if (dataSet != null) {
+                String style = dataSet.getStyle();
+                if (style != null) {
+                    // Extraer grosor de línea
+                    if (style.contains("strokeWidth=")) {
+                        String widthStr = style.replaceAll(".*strokeWidth=([^;]*).*", "$1");
+                        try {
+                            double width = Double.parseDouble(widthStr);
+                            lineWidthSpinner.getValueFactory().setValue(width);
+                        } catch (Exception e) {
+                            // Ignorar errores
+                        }
+                    }
+
+                    // Extraer estilo de línea
+                    if (style.contains("strokeDashArray=")) {
+                        String dashStr = style.replaceAll(".*strokeDashArray=([^;]*).*", "$1");
+                        if (dashStr.equals("5,5")) {
+                            lineStyleCombo.setValue("Discontinua");
+                        } else if (dashStr.equals("2,2")) {
+                            lineStyleCombo.setValue("Punteada");
+                        } else if (dashStr.equals("10,5")) {
+                            lineStyleCombo.setValue("Guiones largos");
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Ignorar errores
+        }
+
+        // Añadir controles al grid
+        grid.add(new javafx.scene.control.Label("Grosor de línea:"), 0, 0);
+        grid.add(lineWidthSpinner, 1, 0);
+        grid.add(new javafx.scene.control.Label("Estilo de línea:"), 0, 1);
+        grid.add(lineStyleCombo, 1, 1);
+
+        dialog.getDialogPane().setContent(grid);
+
+        // Convertir resultado
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == javafx.scene.control.ButtonType.OK) {
+                return new javafx.util.Pair<>(lineWidthSpinner.getValue(), lineStyleCombo.getValue());
+            }
+            return null;
+        });
+
+        // Mostrar diálogo y procesar resultado
+        dialog.showAndWait().ifPresent(result -> {
+            double lineWidth = result.getKey();
+            String lineStyle = result.getValue();
+
+            // Determinar el patrón de guiones según el estilo seleccionado
+            String dashPattern = "";
+            if (lineStyle.equals("Discontinua")) {
+                dashPattern = "strokeDashArray=5,5;";
+            } else if (lineStyle.equals("Punteada")) {
+                dashPattern = "strokeDashArray=2,2;";
+            } else if (lineStyle.equals("Guiones largos")) {
+                dashPattern = "strokeDashArray=10,5;";
+            }
+
+            // Actualizar el estilo de la función
+            DoubleDataSet dataSet = dataSets.get(function);
+            if (dataSet != null) {
+                String currentStyle = dataSet.getStyle();
+                String newStyle;
+
+                if (currentStyle != null && !currentStyle.isEmpty()) {
+                    // Actualizar grosor de línea
+                    newStyle = currentStyle.replaceAll("strokeWidth=[^;]*", "strokeWidth=" + lineWidth);
+
+                    // Actualizar o añadir patrón de guiones
+                    if (dashPattern.isEmpty()) {
+                        // Eliminar patrón de guiones si existe
+                        newStyle = newStyle.replaceAll("strokeDashArray=[^;]*;", "");
+                    } else if (newStyle.contains("strokeDashArray=")) {
+                        // Reemplazar patrón existente
+                        newStyle = newStyle.replaceAll("strokeDashArray=[^;]*", dashPattern.replace(";", ""));
+                    } else {
+                        // Añadir nuevo patrón
+                        newStyle += dashPattern;
+                    }
+                } else {
+                    // Crear un nuevo estilo
+                    String color = COLORS[selectedIndex % COLORS.length];
+                    newStyle = "strokeColor=" + color + ";strokeWidth=" + lineWidth + ";" + dashPattern;
+                }
+
+                dataSet.setStyle(newStyle);
+
+                // Actualizar la selección para mostrar el nuevo estilo
+                if (selectedFunctionIndex == selectedIndex) {
+                    highlightSelectedSeries(selectedIndex);
+                }
+            }
+        });
     }
 
     // Métodos para navegación (mantener los existentes)

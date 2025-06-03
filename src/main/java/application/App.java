@@ -42,12 +42,34 @@ public class App extends Application {
     }
 
     public void setScene(String path) {
+        System.out.println("Intentando cargar la escena: " + path);
+
+        // Verificar que la ruta no sea null
+        if (path == null) {
+            System.err.println("Error: La ruta es null");
+            return;
+        }
+
+        // Verificar que el recurso existe
+        if (getClass().getResource(path) == null) {
+            System.err.println("Error: No se pudo encontrar el recurso: " + path);
+            return;
+        }
+
         FXMLLoader loader = new FXMLLoader(getClass().getResource(path));
         try {
+            System.out.println("Cargando el archivo FXML: " + path);
             BorderPane pane = loader.load();
+            System.out.println("Archivo FXML cargado correctamente");
 
             Scene scene = new Scene(pane, WINDOW_WIDTH, WINDOW_HEIGHT);
-            scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+
+            try {
+                scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+            } catch (Exception e) {
+                System.err.println("Error al cargar la hoja de estilos: " + e.getMessage());
+                // Continuar sin la hoja de estilos
+            }
 
             stageW.setScene(scene);
             stageW.setTitle("Menú Principal");
@@ -55,21 +77,33 @@ public class App extends Application {
             stageW.setWidth(WINDOW_WIDTH);
             stageW.setHeight(WINDOW_HEIGHT);
             stageW.show();
+            System.out.println("Escena configurada y mostrada correctamente");
 
             // Almacenar el controlador
             Object controller = loader.getController();
             controllers.put(path, controller);
+            System.out.println("Controlador almacenado: " + (controller != null ? controller.getClass().getName() : "null"));
 
             // Pasar la función al controlador correspondiente
             if (userFunction != null) {
                 if (path.equals(Paths.METODO_BIS) && controller instanceof CtrlMetodoBiseccion) {
                     ((CtrlMetodoBiseccion) controller).setUserFunction(userFunction);
+                    System.out.println("Función pasada al controlador de Bisección");
                 } else if (path.equals(Paths.METODO_PTO_FIJO) && controller instanceof CtrlMetodoPtoFijo) {
                     ((CtrlMetodoPtoFijo) controller).setUserFunction(userFunction);
+                    System.out.println("Función pasada al controlador de Punto Fijo");
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.err.println("Error al cargar el archivo FXML: " + path);
+            System.err.println("Mensaje de error: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Error al cargar la escena: " + path, e);
+        } catch (Exception e) {
+            System.err.println("Error inesperado al configurar la escena: " + path);
+            System.err.println("Mensaje de error: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Error inesperado al configurar la escena: " + path, e);
         }
     }
 

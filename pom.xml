@@ -116,6 +116,23 @@
             <version>11.2.0</version>
         </dependency>
 
+        <!-- FontAwesomeFX - Iconos para JavaFX -->
+        <dependency>
+            <groupId>de.jensd</groupId>
+            <artifactId>fontawesomefx-fontawesome</artifactId>
+            <version>4.7.0-9.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>de.jensd</groupId>
+            <artifactId>fontawesomefx-commons</artifactId>
+            <version>9.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>de.jensd</groupId>
+            <artifactId>fontawesomefx-materialdesignfont</artifactId>
+            <version>2.0.26-9.1.2</version>
+        </dependency>
+
         <!-- Use JavaFX Charts instead of Chart-FX -->
         <!-- Since we're having issues with Chart-FX dependencies, we'll modify the controllers to use JavaFX Charts -->
         <!-- JavaFX Charts are already included in javafx-controls dependency -->

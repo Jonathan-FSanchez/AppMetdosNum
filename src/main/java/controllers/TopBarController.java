@@ -62,10 +62,15 @@ public abstract class TopBarController {
         setupButtonAnimations(btnVMain);
         setupButtonAnimations(btnExit);
 
+        // Add tooltips to main buttons
+        setupButtonTooltip(btnVMain, "Volver a la pantalla principal");
+        setupButtonTooltip(btnExit, "Salir de la aplicación");
+
         // Setup the main menu button if it exists
         if (btnMainMenu != null) {
             setupButtonAnimations(btnMainMenu);
             setupMainMenuButton();
+            setupButtonTooltip(btnMainMenu, "Acceder al menú principal con todos los métodos numéricos");
         } else {
             // Fallback to original implementation if btnMainMenu is not defined
             setupButtonAnimations(btnMetodos);
@@ -75,6 +80,10 @@ public abstract class TopBarController {
             btnMetodos.setVisible(true);
             btnSoluciones.setVisible(true);
             btnGraficas.setVisible(true);
+
+            setupButtonTooltip(btnMetodos, "Métodos numéricos disponibles");
+            setupButtonTooltip(btnSoluciones, "Soluciones para ecuaciones");
+            setupButtonTooltip(btnGraficas, "Herramientas de graficación");
 
             popup = new Popup();
             subPopup = new Popup();
@@ -101,15 +110,15 @@ public abstract class TopBarController {
         // Setup graficar button if it exists
         if (btnGraficar != null) {
             setupButtonAnimations(btnGraficar);
+            setupButtonTooltip(btnGraficar, "Abrir la herramienta de graficación avanzada");
             btnGraficar.setOnAction(event -> {
-                // Animación de transición entre escenas
-                FadeTransition fadeOut = new FadeTransition(Duration.millis(300), btnGraficar.getScene().getRoot());
-                fadeOut.setFromValue(1.0);
-                fadeOut.setToValue(0.0);
-                fadeOut.setOnFinished(ev -> {
+                try {
+                    // Cambiar directamente a la escena sin animación para evitar problemas
                     App.app.setScene(Paths.GRAFICA);
-                });
-                fadeOut.play();
+                } catch (Exception e) {
+                    System.err.println("Error al cargar la graficadora: " + e.getMessage());
+                    e.printStackTrace();
+                }
             });
         }
 
@@ -119,11 +128,53 @@ public abstract class TopBarController {
     }
 
     /**
+     * Sets up a tooltip for a button with enhanced styling
+     */
+    private void setupButtonTooltip(Button button, String tooltipText) {
+        if (button == null) return;
+
+        javafx.scene.control.Tooltip tooltip = new javafx.scene.control.Tooltip(tooltipText);
+        tooltip.setShowDelay(javafx.util.Duration.millis(300));
+        tooltip.getStyleClass().add("enhanced-tooltip");
+        button.setTooltip(tooltip);
+    }
+
+    /**
+     * Checks if the mouse is over any menu component
+     * This is used to prevent the menu from closing when moving between items
+     */
+    private boolean isMouseOverAnyMenuComponent() {
+        // Check if the mouse is over the menu button or grid
+        if (btnMainMenu.isHover() || menuGrid.isHover()) {
+            return true;
+        }
+
+        // Check if the mouse is over any menu section or item
+        for (javafx.scene.Node node : menuGrid.getChildren()) {
+            if (node instanceof VBox) {
+                VBox section = (VBox) node;
+                if (section.isHover()) {
+                    return true;
+                }
+
+                // Check all children of the section
+                for (javafx.scene.Node child : section.getChildren()) {
+                    if (child.isHover()) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Sets up the main menu button with a large submenu containing all options
      */
     protected void setupMainMenuButton() {
         popup = new Popup();
-        hideDelay = new PauseTransition(Duration.millis(200));
+        hideDelay = new PauseTransition(Duration.millis(500)); // Increased delay time to give users more time
 
         // Create a grid pane for the large submenu
         menuGrid = new GridPane();
@@ -137,8 +188,7 @@ public abstract class TopBarController {
             "Método de Punto Fijo",
             "Método de la Secante",
             "Método de Newton Rapshon",
-            "Método de Müller",
-            "Método de Añadir metodo"
+            "Método de Müller"
         });
 
         VBox raicesSection = createMenuSection("Raíces", new String[]{
@@ -146,8 +196,7 @@ public abstract class TopBarController {
             "Solución de Punto Fijo",
             "Solución de la Secante",
             "Solución de Newton Rapshon",
-            "Solución de Müller",
-            "Solución de Añadir metodo"
+            "Solución de Müller"
         });
 
         // Create new sections
@@ -181,26 +230,40 @@ public abstract class TopBarController {
 
         popup.getContent().setAll(menuGrid);
 
+        // Add click handler to toggle menu visibility
+        btnMainMenu.setOnAction(event -> {
+            if (popup.isShowing()) {
+                hideMenuWithAnimation();
+            } else {
+                showLargeMenu(null);
+            }
+        });
+
         // Set up hover event for the main menu button
         btnMainMenu.setOnMouseEntered(event -> showLargeMenu(event));
         btnMainMenu.setOnMouseExited(event -> {
+            // Get the mouse position
+            double mouseX = event.getScreenX();
+            double mouseY = event.getScreenY();
+
+            // Check if the mouse is within a small buffer zone around the button
+            Bounds buttonBounds = btnMainMenu.localToScreen(btnMainMenu.getBoundsInLocal());
+            double bufferSize = 10; // 10 pixel buffer zone
+            boolean inBufferZone = 
+                mouseX >= buttonBounds.getMinX() - bufferSize && 
+                mouseX <= buttonBounds.getMaxX() + bufferSize &&
+                mouseY >= buttonBounds.getMinY() - bufferSize && 
+                mouseY <= buttonBounds.getMaxY() + bufferSize;
+
+            // If mouse is in buffer zone, don't start the hide delay
+            if (inBufferZone) {
+                return;
+            }
+
             hideDelay.setOnFinished(e -> {
-                if (!menuGrid.isHover() && !btnMainMenu.isHover()) {
-                    // Animación de salida para el menú
-                    FadeTransition fadeOut = new FadeTransition(Duration.millis(200), menuGrid);
-                    fadeOut.setFromValue(1);
-                    fadeOut.setToValue(0);
-
-                    ScaleTransition scaleOut = new ScaleTransition(Duration.millis(200), menuGrid);
-                    scaleOut.setFromY(1.0);
-                    scaleOut.setToY(0.8);
-
-                    ParallelTransition parallelOut = new ParallelTransition(fadeOut, scaleOut);
-                    parallelOut.setOnFinished(ev -> {
-                        popup.hide();
-                        menuGrid.getStyleClass().remove("showing");
-                    });
-                    parallelOut.play();
+                // Check if the mouse is over any part of the menu system
+                if (!isMouseOverAnyMenuComponent()) {
+                    hideMenuWithAnimation();
                 }
             });
             hideDelay.playFromStart();
@@ -211,27 +274,35 @@ public abstract class TopBarController {
         });
 
         menuGrid.setOnMouseExited(event -> {
+            // Get the mouse position
+            double mouseX = event.getScreenX();
+            double mouseY = event.getScreenY();
+
+            // Check if the mouse is within a small buffer zone around the menu
+            Bounds menuBounds = menuGrid.localToScreen(menuGrid.getBoundsInLocal());
+            double bufferSize = 10; // 10 pixel buffer zone
+            boolean inBufferZone = 
+                mouseX >= menuBounds.getMinX() - bufferSize && 
+                mouseX <= menuBounds.getMaxX() + bufferSize &&
+                mouseY >= menuBounds.getMinY() - bufferSize && 
+                mouseY <= menuBounds.getMaxY() + bufferSize;
+
+            // If mouse is in buffer zone, don't start the hide delay
+            if (inBufferZone) {
+                return;
+            }
+
             hideDelay.setOnFinished(e -> {
-                if (!btnMainMenu.isHover()) {
-                    // Animación de salida para el menú
-                    FadeTransition fadeOut = new FadeTransition(Duration.millis(200), menuGrid);
-                    fadeOut.setFromValue(1);
-                    fadeOut.setToValue(0);
-
-                    ScaleTransition scaleOut = new ScaleTransition(Duration.millis(200), menuGrid);
-                    scaleOut.setFromY(1.0);
-                    scaleOut.setToY(0.8);
-
-                    ParallelTransition parallelOut = new ParallelTransition(fadeOut, scaleOut);
-                    parallelOut.setOnFinished(ev -> {
-                        popup.hide();
-                        menuGrid.getStyleClass().remove("showing");
-                    });
-                    parallelOut.play();
+                // Check if the mouse is over any part of the menu system
+                if (!isMouseOverAnyMenuComponent()) {
+                    hideMenuWithAnimation();
                 }
             });
             hideDelay.playFromStart();
         });
+
+        // Add handler for clicking outside the menu to dismiss it
+        popup.setAutoHide(true);
     }
 
     /**
@@ -241,15 +312,29 @@ public abstract class TopBarController {
         VBox section = new VBox(8);
         section.getStyleClass().add("menu-section");
 
-        // Add title
-        Label titleLabel = new Label(title);
+        // Add title with icon
+        String titleIcon = getIconForTitle(title);
+        Label titleLabel = new Label(titleIcon + " " + title);
         titleLabel.getStyleClass().add("menu-section-title");
         section.getChildren().add(titleLabel);
 
+        // Add mouse enter/exit handlers for the section to prevent menu from closing
+        section.setOnMouseEntered(event -> {
+            hideDelay.stop();
+        });
+
         // Add menu items
         for (int i = 0; i < items.length; i++) {
-            Label item = new Label(items[i]);
+            // Add icon based on item text
+            String icon = getIconForMenuItem(items[i]);
+            Label item = new Label(icon + " " + items[i]);
             item.getStyleClass().add("menu-item");
+
+            // Add tooltip with description
+            javafx.scene.control.Tooltip tooltip = new javafx.scene.control.Tooltip(getDescriptionForMenuItem(items[i]));
+            tooltip.setShowDelay(javafx.util.Duration.millis(300));
+            tooltip.getStyleClass().add("enhanced-tooltip");
+            javafx.scene.control.Tooltip.install(item, tooltip);
 
             // Setup animations
             setupMenuItemAnimation(item, i);
@@ -257,10 +342,117 @@ public abstract class TopBarController {
             // Setup click handlers based on the item text
             setupMenuItemClickHandler(item);
 
+            // Add mouse enter/exit handlers for each menu item to prevent menu from closing
+            item.setOnMouseEntered(event -> {
+                hideDelay.stop();
+            });
+
             section.getChildren().add(item);
         }
 
         return section;
+    }
+
+    /**
+     * Returns an appropriate icon for a menu section title
+     */
+    private String getIconForTitle(String title) {
+        switch (title) {
+            case "Métodos":
+                return ""; // Removed calculator icon
+            case "Raíces":
+                return ""; // Removed chart icon
+            case "Derivación":
+                return ""; // Removed increasing trend icon
+            case "Integración":
+                return ""; // Removed integral symbol
+            case "Ecuaciones Diferenciales":
+                return ""; // Removed cycle icon
+            default:
+                return ""; // Removed default clipboard icon
+        }
+    }
+
+    /**
+     * Returns an appropriate icon for a menu item
+     */
+    private String getIconForMenuItem(String item) {
+        if (item.contains("Bisección")) {
+            return ""; // Removed icon for bisection
+        } else if (item.contains("Punto Fijo")) {
+            return ""; // Removed icon for fixed point
+        } else if (item.contains("Secante")) {
+            return ""; // Removed icon for secant
+        } else if (item.contains("Newton")) {
+            return ""; // Removed icon for Newton
+        } else if (item.contains("Müller")) {
+            return ""; // Removed icon for Müller
+        } else if (item.contains("Añadir")) {
+            return ""; // Removed icon for adding
+        } else if (item.contains("Interpolacion")) {
+            return ""; // Removed icon for interpolation
+        } else if (item.contains("Polinomio")) {
+            return ""; // Removed icon for polynomial
+        } else if (item.contains("Derivacion")) {
+            return ""; // Removed icon for derivation
+        } else if (item.contains("Richardson")) {
+            return ""; // Removed icon for Richardson
+        } else if (item.contains("Integración")) {
+            return ""; // Removed icon for integration
+        } else if (item.contains("compuesta")) {
+            return ""; // Removed icon for composite
+        } else if (item.contains("múltiple")) {
+            return ""; // Removed icon for multiple
+        } else if (item.contains("Romberg")) {
+            return ""; // Removed icon for Romberg
+        } else if (item.contains("Cuadratura")) {
+            return ""; // Removed icon for quadrature
+        } else if (item.contains("Trapecio")) {
+            return ""; // Removed icon for trapezoid
+        } else if (item.contains("Simpson")) {
+            return ""; // Removed icon for Simpson
+        } else {
+            return ""; // Removed default icon
+        }
+    }
+
+    /**
+     * Returns a description for a menu item to be used in tooltips
+     */
+    private String getDescriptionForMenuItem(String item) {
+        if (item.contains("Bisección")) {
+            return "Método que divide el intervalo en dos partes iguales para encontrar raíces";
+        } else if (item.contains("Punto Fijo")) {
+            return "Método iterativo que encuentra puntos donde f(x) = x";
+        } else if (item.contains("Secante")) {
+            return "Método que aproxima la derivada usando dos puntos";
+        } else if (item.contains("Newton")) {
+            return "Método que utiliza la derivada para aproximar raíces";
+        } else if (item.contains("Müller")) {
+            return "Método que utiliza interpolación cuadrática para encontrar raíces";
+        } else if (item.contains("Interpolacion")) {
+            return "Técnicas para estimar valores entre puntos conocidos";
+        } else if (item.contains("Polinomio")) {
+            return "Construcción de polinomios que pasan por puntos dados";
+        } else if (item.contains("Derivacion")) {
+            return "Cálculo numérico de derivadas de funciones";
+        } else if (item.contains("Integración")) {
+            return "Cálculo numérico de integrales de funciones";
+        } else if (item.contains("compuesta")) {
+            return "Método que divide el intervalo en subintervalos para mayor precisión";
+        } else if (item.contains("múltiple")) {
+            return "Cálculo de integrales en varias dimensiones";
+        } else if (item.contains("Romberg")) {
+            return "Método que combina la regla del trapecio con extrapolación";
+        } else if (item.contains("Cuadratura")) {
+            return "Método adaptativo que ajusta el tamaño de los intervalos";
+        } else if (item.contains("Trapecio")) {
+            return "Aproxima el área bajo la curva usando trapecios";
+        } else if (item.contains("Simpson")) {
+            return "Aproxima el área usando polinomios de segundo grado";
+        } else {
+            return "Haz clic para más información";
+        }
     }
 
     /**
@@ -349,10 +541,147 @@ public abstract class TopBarController {
                         App.app.setScene(Paths.METODO_PTO_FIJO);
                     });
                     fadeOut.play();
+                } else if (item.getText().contains("Método")) {
+                    // Animación de transición entre escenas para el método
+                    FadeTransition fadeOut = new FadeTransition(Duration.millis(300), btnMainMenu.getScene().getRoot());
+                    fadeOut.setFromValue(1.0);
+                    fadeOut.setToValue(0.0);
+                    fadeOut.setOnFinished(ev -> {
+                        App.app.setScene(Paths.METODO_PTO_FIJO);
+                    });
+                    fadeOut.play();
+                }
+            } else if (item.getText().contains("Müller")) {
+                String function = App.app.getFunction();
+                if (function == null || function.trim().isEmpty()) {
+                    System.out.println("No se ha ingresado una función. Usa la vista principal para ingresarla.");
+
+                    // Mostrar animación de error
+                    Timeline shakeAnimation = new Timeline(
+                        new KeyFrame(Duration.millis(0), evt -> item.setTranslateX(0)),
+                        new KeyFrame(Duration.millis(50), evt -> item.setTranslateX(5)),
+                        new KeyFrame(Duration.millis(100), evt -> item.setTranslateX(-5)),
+                        new KeyFrame(Duration.millis(150), evt -> item.setTranslateX(5)),
+                        new KeyFrame(Duration.millis(200), evt -> item.setTranslateX(0))
+                    );
+                    shakeAnimation.play();
+                } else if (item.getText().contains("Solución") || item.getText().contains("Método")) {
+                    // Animación de transición entre escenas
+                    FadeTransition fadeOut = new FadeTransition(Duration.millis(300), btnMainMenu.getScene().getRoot());
+                    fadeOut.setFromValue(1.0);
+                    fadeOut.setToValue(0.0);
+                    fadeOut.setOnFinished(ev -> {
+                        App.app.setScene(Paths.METODO_MULLER);
+                    });
+                    fadeOut.play();
+                }
+            } else if (item.getText().contains("Secante")) {
+                String function = App.app.getFunction();
+                if (function == null || function.trim().isEmpty()) {
+                    System.out.println("No se ha ingresado una función. Usa la vista principal para ingresarla.");
+
+                    // Mostrar animación de error
+                    Timeline shakeAnimation = new Timeline(
+                        new KeyFrame(Duration.millis(0), evt -> item.setTranslateX(0)),
+                        new KeyFrame(Duration.millis(50), evt -> item.setTranslateX(5)),
+                        new KeyFrame(Duration.millis(100), evt -> item.setTranslateX(-5)),
+                        new KeyFrame(Duration.millis(150), evt -> item.setTranslateX(5)),
+                        new KeyFrame(Duration.millis(200), evt -> item.setTranslateX(0))
+                    );
+                    shakeAnimation.play();
+                } else if (item.getText().contains("Solución") || item.getText().contains("Método")) {
+                    // Animación de transición entre escenas
+                    FadeTransition fadeOut = new FadeTransition(Duration.millis(300), btnMainMenu.getScene().getRoot());
+                    fadeOut.setFromValue(1.0);
+                    fadeOut.setToValue(0.0);
+                    fadeOut.setOnFinished(ev -> {
+                        App.app.setScene(Paths.METODO_SECANTE);
+                    });
+                    fadeOut.play();
+                }
+            } else if (item.getText().contains("Newton")) {
+                String function = App.app.getFunction();
+                if (function == null || function.trim().isEmpty()) {
+                    System.out.println("No se ha ingresado una función. Usa la vista principal para ingresarla.");
+
+                    // Mostrar animación de error
+                    Timeline shakeAnimation = new Timeline(
+                        new KeyFrame(Duration.millis(0), evt -> item.setTranslateX(0)),
+                        new KeyFrame(Duration.millis(50), evt -> item.setTranslateX(5)),
+                        new KeyFrame(Duration.millis(100), evt -> item.setTranslateX(-5)),
+                        new KeyFrame(Duration.millis(150), evt -> item.setTranslateX(5)),
+                        new KeyFrame(Duration.millis(200), evt -> item.setTranslateX(0))
+                    );
+                    shakeAnimation.play();
+                } else if (item.getText().contains("Solución") || item.getText().contains("Método")) {
+                    // Animación de transición entre escenas
+                    FadeTransition fadeOut = new FadeTransition(Duration.millis(300), btnMainMenu.getScene().getRoot());
+                    fadeOut.setFromValue(1.0);
+                    fadeOut.setToValue(0.0);
+                    fadeOut.setOnFinished(ev -> {
+                        App.app.setScene(Paths.METODO_NEWTON_RAPHSON);
+                    });
+                    fadeOut.play();
+                }
+            } else if (item.getText().contains("Interpolacion")) {
+                System.out.println("Navegando a la pantalla de Interpolación...");
+                System.out.println("Texto del item: '" + item.getText() + "'");
+
+                // Verificar que App.app no sea null
+                if (App.app == null) {
+                    System.err.println("Error: App.app es null. No se puede navegar a la pantalla de Interpolación.");
+                    return;
+                }
+
+                try {
+                    // Animación de transición entre escenas
+                    FadeTransition fadeOut = new FadeTransition(Duration.millis(300), btnMainMenu.getScene().getRoot());
+                    fadeOut.setFromValue(1.0);
+                    fadeOut.setToValue(0.0);
+                    fadeOut.setOnFinished(ev -> {
+                        try {
+                            // Verificar nuevamente que App.app no sea null
+                            if (App.app == null) {
+                                System.err.println("Error: App.app es null en el callback de la animación.");
+                                return;
+                            }
+
+                            // Verificar que la ruta existe
+                            if (Paths.METODO_INTERPOLACION == null) {
+                                System.err.println("Error: Paths.METODO_INTERPOLACION es null.");
+                                return;
+                            }
+
+                            System.out.println("Intentando navegar a: " + Paths.METODO_INTERPOLACION);
+                            App.app.setScene(Paths.METODO_INTERPOLACION);
+                            System.out.println("Navegación a Interpolación completada con éxito");
+                        } catch (Exception ex) {
+                            System.err.println("Error al navegar a la pantalla de Interpolación: " + ex.getMessage());
+                            ex.printStackTrace();
+                        }
+                    });
+                    fadeOut.play();
+                } catch (Exception ex) {
+                    System.err.println("Error al crear la animación para Interpolación: " + ex.getMessage());
+                    ex.printStackTrace();
+                    // Intentar navegar directamente sin animación como fallback
+                    try {
+                        // Verificar nuevamente que App.app no sea null
+                        if (App.app == null) {
+                            System.err.println("Error: App.app es null en el fallback.");
+                            return;
+                        }
+
+                        System.out.println("Intentando navegar directamente a: " + Paths.METODO_INTERPOLACION);
+                        App.app.setScene(Paths.METODO_INTERPOLACION);
+                    } catch (Exception fallbackEx) {
+                        System.err.println("Error al navegar directamente a Interpolación: " + fallbackEx.getMessage());
+                        fallbackEx.printStackTrace();
+                    }
                 }
             }
 
-            popup.hide();
+            hideMenuWithAnimation();
         });
     }
 
@@ -388,6 +717,27 @@ public abstract class TopBarController {
 
         ParallelTransition parallelIn = new ParallelTransition(fadeIn, scaleIn);
         parallelIn.play();
+    }
+
+    /**
+     * Hides the menu with animation
+     */
+    private void hideMenuWithAnimation() {
+        // Animación de salida para el menú
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(200), menuGrid);
+        fadeOut.setFromValue(1);
+        fadeOut.setToValue(0);
+
+        ScaleTransition scaleOut = new ScaleTransition(Duration.millis(200), menuGrid);
+        scaleOut.setFromY(1.0);
+        scaleOut.setToY(0.8);
+
+        ParallelTransition parallelOut = new ParallelTransition(fadeOut, scaleOut);
+        parallelOut.setOnFinished(ev -> {
+            popup.hide();
+            menuGrid.getStyleClass().remove("showing");
+        });
+        parallelOut.play();
     }
 
     private void setupButtonAnimations(Button button) {
@@ -526,16 +876,85 @@ public abstract class TopBarController {
                 });
                 item3.setOnMouseClicked(e -> {
                     System.out.println("Seleccionaste: " + item3.getText());
+                    String function = App.app.getFunction();
+                    if (function == null || function.trim().isEmpty()) {
+                        System.out.println("No se ha ingresado una función. Usa la vista principal para ingresarla.");
+
+                        // Mostrar animación de error
+                        Timeline shakeAnimation = new Timeline(
+                            new KeyFrame(Duration.millis(0), evt -> item3.setTranslateX(0)),
+                            new KeyFrame(Duration.millis(50), evt -> item3.setTranslateX(5)),
+                            new KeyFrame(Duration.millis(100), evt -> item3.setTranslateX(-5)),
+                            new KeyFrame(Duration.millis(150), evt -> item3.setTranslateX(5)),
+                            new KeyFrame(Duration.millis(200), evt -> item3.setTranslateX(0))
+                        );
+                        shakeAnimation.play();
+                    } else {
+                        // Animación de transición entre escenas
+                        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), button.getScene().getRoot());
+                        fadeOut.setFromValue(1.0);
+                        fadeOut.setToValue(0.0);
+                        fadeOut.setOnFinished(ev -> {
+                            App.app.setScene(Paths.METODO_SECANTE);
+                        });
+                        fadeOut.play();
+                    }
                     popup.hide();
                     subPopup.hide();
                 });
                 item4.setOnMouseClicked(e -> {
                     System.out.println("Seleccionaste: " + item4.getText());
+                    String function = App.app.getFunction();
+                    if (function == null || function.trim().isEmpty()) {
+                        System.out.println("No se ha ingresado una función. Usa la vista principal para ingresarla.");
+
+                        // Mostrar animación de error
+                        Timeline shakeAnimation = new Timeline(
+                            new KeyFrame(Duration.millis(0), evt -> item4.setTranslateX(0)),
+                            new KeyFrame(Duration.millis(50), evt -> item4.setTranslateX(5)),
+                            new KeyFrame(Duration.millis(100), evt -> item4.setTranslateX(-5)),
+                            new KeyFrame(Duration.millis(150), evt -> item4.setTranslateX(5)),
+                            new KeyFrame(Duration.millis(200), evt -> item4.setTranslateX(0))
+                        );
+                        shakeAnimation.play();
+                    } else {
+                        // Animación de transición entre escenas
+                        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), button.getScene().getRoot());
+                        fadeOut.setFromValue(1.0);
+                        fadeOut.setToValue(0.0);
+                        fadeOut.setOnFinished(ev -> {
+                            App.app.setScene(Paths.METODO_NEWTON_RAPHSON);
+                        });
+                        fadeOut.play();
+                    }
                     popup.hide();
                     subPopup.hide();
                 });
                 item5.setOnMouseClicked(e -> {
                     System.out.println("Seleccionaste: " + item5.getText());
+                    String function = App.app.getFunction();
+                    if (function == null || function.trim().isEmpty()) {
+                        System.out.println("No se ha ingresado una función. Usa la vista principal para ingresarla.");
+
+                        // Mostrar animación de error
+                        Timeline shakeAnimation = new Timeline(
+                            new KeyFrame(Duration.millis(0), evt -> item5.setTranslateX(0)),
+                            new KeyFrame(Duration.millis(50), evt -> item5.setTranslateX(5)),
+                            new KeyFrame(Duration.millis(100), evt -> item5.setTranslateX(-5)),
+                            new KeyFrame(Duration.millis(150), evt -> item5.setTranslateX(5)),
+                            new KeyFrame(Duration.millis(200), evt -> item5.setTranslateX(0))
+                        );
+                        shakeAnimation.play();
+                    } else {
+                        // Animación de transición entre escenas
+                        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), button.getScene().getRoot());
+                        fadeOut.setFromValue(1.0);
+                        fadeOut.setToValue(0.0);
+                        fadeOut.setOnFinished(ev -> {
+                            App.app.setScene(Paths.METODO_MULLER);
+                        });
+                        fadeOut.play();
+                    }
                     popup.hide();
                     subPopup.hide();
                 });
