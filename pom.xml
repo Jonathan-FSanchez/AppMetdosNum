@@ -107,7 +107,7 @@
             <groupId>de.gsi</groupId>
             <artifactId>chartfx-samples</artifactId>
             <version>11.2.4</version>
-        </dependency><!--prueba -->
+        </dependency><!--prueba1 -->
 
         <!-- ControlsFX - Componentes adicionales para JavaFX -->
         <dependency>
