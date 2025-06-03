@@ -9,4 +9,5 @@ public class Paths {
     public static final String METODO_MULLER = "/metodoMuller.fxml";
     public static final String METODO_SECANTE = "/metodoSecante.fxml";
     public static final String METODO_NEWTON_RAPHSON = "/metodoNewtonRaphson.fxml";
+    public static final String METODO_DEFLACION = "/metodoDeflacion.fxml";
 }
