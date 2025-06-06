@@ -10,4 +10,8 @@ public class Paths {
     public static final String METODO_SECANTE = "/metodoSecante.fxml";
     public static final String METODO_NEWTON_RAPHSON = "/metodoNewtonRaphson.fxml";
     public static final String METODO_DEFLACION = "/metodoDeflacion.fxml";
+    public static final String METODO_FALSA_POSICION = "/metodoFalsaPosicion.fxml";
+    public static final String METODO_STEFFENSEN = "/metodoSteffensen.fxml";
+    public static final String METODO_BISECCION_AITKEN = "/metodoBiseccionAitken.fxml";
+    public static final String METODO_SECANTE_AITKEN = "/metodoSecanteAitken.fxml";
 }

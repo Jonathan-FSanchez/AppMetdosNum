@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="803.0" prefWidth="1121.0" styleClass="backgroundMBis-image" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.CtrlMetodoFalsaPosicion">
+    <top>
+        <HBox alignment="CENTER" prefHeight="37.0" prefWidth="841.0" styleClass="top-bar" stylesheets="@styles.css" BorderPane.alignment="CENTER">
+            <children>
+                <!-- New main menu button -->
+                <Button fx:id="btnMainMenu" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="120.0" stylesheets="@styles.css" text="Menú ▼" textFill="WHITE">
+                    <font>
+                        <Font name="AppleMyungjo Regular" size="13.0" />
+                    </font>
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                    <styleClass>
+                        <String fx:value="menu-button" />
+                        <String fx:value="popup" />
+                        <String fx:value="button-custom" />
+                        <String fx:value="github-style-button" />
+                    </styleClass>
+                </Button>
+                <Button fx:id="btnGraficar" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="88.0" styleClass="button-custom" stylesheets="@styles.css" text="Graficar" textFill="WHITE">
+                    <font>
+                        <Font name="AppleMyungjo Regular" size="13.0" />
+                    </font>
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                </Button>
+
+                <!-- Original buttons (hidden by controller) -->
+                <Button fx:id="btnMetodos" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" stylesheets="@styles.css" text="Metodos" textFill="WHITE" visible="false">
+                    <font>
+                        <Font name="AppleMyungjo Regular" size="13.0" />
+                    </font>
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                    <styleClass>
+                        <String fx:value="menu-button" />
+                        <String fx:value="popup" />
+                        <String fx:value="button-custom" />
+                    </styleClass>
+                </Button>
+                <Button fx:id="btnSoluciones" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" stylesheets="@styles.css" text="Soluciones" textFill="WHITE" visible="false">
+                    <font>
+                        <Font name="AppleMyungjo Regular" size="13.0" />
+                    </font>
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                    <styleClass>
+                        <String fx:value="context-menu" />
+                        <String fx:value="popup" />
+                        <String fx:value="button-custom" />
+                    </styleClass>
+                </Button>
+                <Button fx:id="btnGraficas" alignment="CENTER" mnemonicParsing="false" prefHeight="26.0" prefWidth="107.0" styleClass="button-custom" stylesheets="@styles.css" text="Graficas" textFill="WHITE" visible="false">
+                    <font>
+                        <Font name="AppleMyungjo Regular" size="13.0" />
+                    </font>
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                </Button>
+                <HBox prefHeight="37.0" prefWidth="536.0" />
+                <Button fx:id="btnVMain" alignment="CENTER" mnemonicParsing="false" onAction="#btnVMain" prefHeight="26.0" prefWidth="110.0" styleClass="button-custom" stylesheets="@styles.css" text="View Main" textFill="WHITE">
+                    <font>
+                        <Font name="AppleMyungjo Regular" size="13.0" />
+                    </font>
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                </Button>
+                <Separator maxHeight="25.0" minHeight="25.0" opacity="0.51" orientation="VERTICAL" prefHeight="25.0" />
+                <Button fx:id="btnExit" alignment="CENTER" mnemonicParsing="false" onAction="#btnExit" prefHeight="26.0" prefWidth="70.0" styleClass="button-custom" stylesheets="@styles.css" text="Exit" textFill="WHITE">
+                    <font>
+                        <Font name="AppleMyungjo Regular" size="13.0" />
+                    </font>
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                </Button>
+            </children></HBox>
+    </top>
+    <opaqueInsets>
+        <Insets />
+    </opaqueInsets>
+   <center>
+      <Pane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="357.0" layoutX="95.0" layoutY="336.0" opacity="0.67" stroke="BLACK" strokeType="INSIDE" styleClass="background-rect-left" width="928.0" />
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="223.0" layoutX="100.0" layoutY="97.0" opacity="0.35" stroke="BLACK" strokeType="INSIDE" styleClass="background-rect-left" width="323.0" />
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="223.0" layoutX="451.0" layoutY="97.0" opacity="0.35" stroke="BLACK" strokeType="INSIDE" styleClass="background-rect-left" width="572.0" />
+            <StackPane fx:id="chartContainer" layoutX="100.0" layoutY="97.0" prefHeight="223.0" prefWidth="323.0" styleClass="chart-container" />
+            <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="904.0" layoutY="610.0" pickOnBounds="true" preserveRatio="true" />
+            <Label layoutX="318.0" layoutY="1.0" text="MÉTODO DE FALSA POSICIÓN" textFill="WHITE">
+               <font>
+                  <Font name="Trattatello" size="45.0" />
+               </font>
+            </Label>
+            <!-- Mostrar la función actual -->
+            <HBox alignment="CENTER" layoutX="100.0" layoutY="60.0" prefHeight="30.0" prefWidth="928.0" styleClass="function-display">
+                <Label text="Función actual: " textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="16.0" />
+                    </font>
+                </Label>
+                <Label fx:id="lblCurrentFunction" text="No se ha seleccionado una función" textFill="WHITE">
+                    <font>
+                        <Font size="16.0" />
+                    </font>
+                </Label>
+            </HBox>
+            <TableView fx:id="tblMFalsaPosicion" layoutX="95.0" layoutY="337.0" prefHeight="355.0" prefWidth="926.0">
+              <columns>
+                <TableColumn fx:id="colN" prefWidth="75.0" text="n" />
+                <TableColumn fx:id="colA" prefWidth="145.05430603027344" text="a" />
+                  <TableColumn fx:id="colC" prefWidth="145.05430603027344" text="c" />
+                  <TableColumn fx:id="colB" prefWidth="145.05430603027344" text="b" />
+                  <TableColumn fx:id="colFa" prefWidth="90.6241455078125" text="f(a)" />
+                  <TableColumn fx:id="colFc" prefWidth="90.6241455078125" text="f(c)" />
+                  <TableColumn fx:id="colFb" prefWidth="90.6241455078125" text="f(b)" />
+                  <TableColumn fx:id="colError" prefWidth="138.87042236328125" text="Error" />
+              </columns>
+            </TableView>
+            <!-- Título de la sección de parámetros -->
+            <Label layoutX="466.0" layoutY="106.0" prefHeight="37.0" prefWidth="548.0" text="Ingrese los siguientes datos y presione &quot;Ejecutar&quot;." textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="21.0" />
+               </font>
+            </Label>
+
+            <!-- Parámetros de entrada mejorados -->
+            <VBox layoutX="475.0" layoutY="154.0" spacing="15" styleClass="input-container">
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label styleClass="param-label" text="a:" textFill="WHITE">
+                        <font>
+                            <Font size="22.0" />
+                        </font>
+                    </Label>
+                    <TextField fx:id="txtA" prefHeight="29.0" prefWidth="151.0" promptText="Valor inicial" styleClass="param-input" />
+
+                    <Label styleClass="param-label" text="b:" textFill="WHITE" HBox.hgrow="ALWAYS">
+                        <font>
+                            <Font size="22.0" />
+                        </font>
+                        <HBox.margin>
+                            <Insets left="30.0" />
+                        </HBox.margin>
+                    </Label>
+                    <TextField fx:id="txtB" prefHeight="29.0" prefWidth="151.0" promptText="Valor final" styleClass="param-input" />
+                </HBox>
+
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label prefHeight="32.0" prefWidth="163.0" styleClass="param-label" text="Iteración Max:" textFill="WHITE">
+                        <font>
+                            <Font name="Sinhala Sangam MN" size="22.0" />
+                        </font>
+                    </Label>
+                    <TextField fx:id="txtIMax" prefHeight="29.0" prefWidth="100.0" promptText="Ej: 100" styleClass="param-input" />
+
+                    <Label styleClass="param-label" text="Error Max:" textFill="WHITE">
+                        <font>
+                            <Font name="Sinhala Sangam MN" size="22.0" />
+                        </font>
+                        <HBox.margin>
+                            <Insets left="20.0" />
+                        </HBox.margin>
+                    </Label>
+                    <TextField fx:id="txtErMax" prefHeight="29.0" prefWidth="100.0" promptText="Ej: 0.0001" styleClass="param-input" />
+                </HBox>
+
+                <HBox alignment="CENTER" prefHeight="41.0" prefWidth="464.0">
+                    <Button mnemonicParsing="false" onAction="#ejecutar" prefHeight="41.0" prefWidth="204.0" styleClass="button3-custom" stylesheets="@styles.css" text="Ejecutar" textFill="WHITE">
+                        <font>
+                            <Font size="19.0" />
+                        </font>
+                        <cursor>
+                            <Cursor fx:constant="HAND" />
+                        </cursor>
+                    </Button>
+                </HBox>
+            </VBox>
+
+            <!-- Sección para mostrar el resultado final -->
+            <HBox alignment="CENTER" layoutX="95.0" layoutY="700.0" prefHeight="50.0" prefWidth="926.0" spacing="20" styleClass="result-container">
+                <Label styleClass="result-label" text="Resultado final:" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="18.0" />
+                    </font>
+                </Label>
+                <Label fx:id="lblFinalResult" styleClass="result-value" text="Ejecute el método para ver el resultado" textFill="WHITE">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                </Label>
+            </HBox>
+         </children>
+      </Pane>
+   </center>
+   <bottom>
+      <ImageView fitHeight="176.0" fitWidth="235.0" pickOnBounds="true" preserveRatio="true" BorderPane.alignment="BOTTOM_RIGHT">
+         <image>
+            <Image url="@img/Cuack.png" />
+         </image>
+      </ImageView>
+   </bottom>
+</BorderPane>

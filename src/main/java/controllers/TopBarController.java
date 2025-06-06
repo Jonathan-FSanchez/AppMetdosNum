@@ -196,7 +196,12 @@ public abstract class TopBarController {
             "Solución de Punto Fijo",
             "Solución de la Secante",
             "Solución de Newton Rapshon",
-            "Solución de Müller"
+            "Solución de Müller",
+            "Método de Falsa Posición",
+            "Método de Steffensen",
+            "Método de Bisección-Aitken",
+            "Método de la Secante-Aitken",
+            "Deflación"
         });
 
         // Create new sections
@@ -623,6 +628,54 @@ public abstract class TopBarController {
                     });
                     fadeOut.play();
                 }
+            } else if (item.getText().contains("Falsa Posición")) {
+                String function = App.app.getFunction();
+                if (function == null || function.trim().isEmpty()) {
+                    System.out.println("No se ha ingresado una función. Usa la vista principal para ingresarla.");
+
+                    // Mostrar animación de error
+                    Timeline shakeAnimation = new Timeline(
+                        new KeyFrame(Duration.millis(0), evt -> item.setTranslateX(0)),
+                        new KeyFrame(Duration.millis(50), evt -> item.setTranslateX(5)),
+                        new KeyFrame(Duration.millis(100), evt -> item.setTranslateX(-5)),
+                        new KeyFrame(Duration.millis(150), evt -> item.setTranslateX(5)),
+                        new KeyFrame(Duration.millis(200), evt -> item.setTranslateX(0))
+                    );
+                    shakeAnimation.play();
+                } else {
+                    // Animación de transición entre escenas
+                    FadeTransition fadeOut = new FadeTransition(Duration.millis(300), btnMainMenu.getScene().getRoot());
+                    fadeOut.setFromValue(1.0);
+                    fadeOut.setToValue(0.0);
+                    fadeOut.setOnFinished(ev -> {
+                        App.app.setScene(Paths.METODO_FALSA_POSICION);
+                    });
+                    fadeOut.play();
+                }
+            } else if (item.getText().contains("Steffensen") || 
+                       item.getText().contains("Bisección-Aitken") || 
+                       item.getText().contains("Secante-Aitken") || 
+                       item.getText().contains("Deflación")) {
+
+                // Mostrar animación de "no implementado"
+                Timeline shakeAnimation = new Timeline(
+                    new KeyFrame(Duration.millis(0), evt -> item.setTranslateX(0)),
+                    new KeyFrame(Duration.millis(50), evt -> item.setTranslateX(5)),
+                    new KeyFrame(Duration.millis(100), evt -> item.setTranslateX(-5)),
+                    new KeyFrame(Duration.millis(150), evt -> item.setTranslateX(5)),
+                    new KeyFrame(Duration.millis(200), evt -> item.setTranslateX(0))
+                );
+                shakeAnimation.play();
+
+                // Mostrar mensaje en consola
+                System.out.println("El método " + item.getText() + " aún no está implementado.");
+
+                // Crear un popup de alerta
+                javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+                alert.setTitle("Método en desarrollo");
+                alert.setHeaderText("Funcionalidad no disponible");
+                alert.setContentText("El método " + item.getText() + " está en desarrollo y estará disponible próximamente.");
+                alert.show();
             } else if (item.getText().contains("Interpolacion")) {
                 System.out.println("Navegando a la pantalla de Interpolación...");
                 System.out.println("Texto del item: '" + item.getText() + "'");
@@ -791,7 +844,8 @@ public abstract class TopBarController {
             Label item3 = new Label(title + " de la Secante");
             Label item4 = new Label(title + " de Newton Rapshon");
             Label item5 = new Label(title + " de Müller");
-            Label item6 = new Label(title + " de Añadir metodo");
+            Label item6 = new Label(title + " de Falsa Posición");
+            Label item7 = new Label(title + " de Añadir metodo");
 
             item1.getStyleClass().add("menu-item");
             item2.getStyleClass().add("menu-item");
@@ -799,6 +853,7 @@ public abstract class TopBarController {
             item4.getStyleClass().add("menu-item");
             item5.getStyleClass().add("menu-item");
             item6.getStyleClass().add("menu-item");
+            item7.getStyleClass().add("menu-item");
 
             // Animación para los elementos del menú
             setupMenuItemAnimation(item1, 0);
@@ -807,10 +862,11 @@ public abstract class TopBarController {
             setupMenuItemAnimation(item4, 3);
             setupMenuItemAnimation(item5, 4);
             setupMenuItemAnimation(item6, 5);
+            setupMenuItemAnimation(item7, 6);
 
             // Configurar el submenú para "Solución de Raíces de un Polinomio"
             if (button == btnSoluciones) {
-                setupSubMenu(item6, button, new String[]{
+                setupSubMenu(item7, button, new String[]{
                     "Método de Deflación",
                     "Método de Raíces de Pol_2",
                     "Método de Raíces de Pol_3"
@@ -952,6 +1008,35 @@ public abstract class TopBarController {
                         fadeOut.setToValue(0.0);
                         fadeOut.setOnFinished(ev -> {
                             App.app.setScene(Paths.METODO_MULLER);
+                        });
+                        fadeOut.play();
+                    }
+                    popup.hide();
+                    subPopup.hide();
+                });
+
+                item6.setOnMouseClicked(e -> {
+                    System.out.println("Seleccionaste: " + item6.getText());
+                    String function = App.app.getFunction();
+                    if (function == null || function.trim().isEmpty()) {
+                        System.out.println("No se ha ingresado una función. Usa la vista principal para ingresarla.");
+
+                        // Mostrar animación de error
+                        Timeline shakeAnimation = new Timeline(
+                            new KeyFrame(Duration.millis(0), evt -> item6.setTranslateX(0)),
+                            new KeyFrame(Duration.millis(50), evt -> item6.setTranslateX(5)),
+                            new KeyFrame(Duration.millis(100), evt -> item6.setTranslateX(-5)),
+                            new KeyFrame(Duration.millis(150), evt -> item6.setTranslateX(5)),
+                            new KeyFrame(Duration.millis(200), evt -> item6.setTranslateX(0))
+                        );
+                        shakeAnimation.play();
+                    } else {
+                        // Animación de transición entre escenas
+                        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), button.getScene().getRoot());
+                        fadeOut.setFromValue(1.0);
+                        fadeOut.setToValue(0.0);
+                        fadeOut.setOnFinished(ev -> {
+                            App.app.setScene(Paths.METODO_FALSA_POSICION);
                         });
                         fadeOut.play();
                     }

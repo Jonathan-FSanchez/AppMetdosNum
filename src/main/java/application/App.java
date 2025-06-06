@@ -1,7 +1,11 @@
 package application;
 
 import controllers.CtrlMetodoBiseccion;
+import controllers.CtrlMetodoFalsaPosicion; // Agregar import para el controlador de falsa posición
+import controllers.CtrlMetodoMuller; // Agregar import para el controlador de Muller
+import controllers.CtrlMetodoNewtonRaphson; // Agregar import para el controlador de Newton Raphson
 import controllers.CtrlMetodoPtoFijo; // Agregar import para el controlador de punto fijo
+import controllers.CtrlMetodoSecante; // Agregar import para el controlador de secante
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -92,6 +96,18 @@ public class App extends Application {
                 } else if (path.equals(Paths.METODO_PTO_FIJO) && controller instanceof CtrlMetodoPtoFijo) {
                     ((CtrlMetodoPtoFijo) controller).setUserFunction(userFunction);
                     System.out.println("Función pasada al controlador de Punto Fijo");
+                } else if (path.equals(Paths.METODO_FALSA_POSICION) && controller instanceof CtrlMetodoFalsaPosicion) {
+                    ((CtrlMetodoFalsaPosicion) controller).setUserFunction(userFunction);
+                    System.out.println("Función pasada al controlador de Falsa Posición");
+                } else if (path.equals(Paths.METODO_MULLER) && controller instanceof CtrlMetodoMuller) {
+                    ((CtrlMetodoMuller) controller).setUserFunction(userFunction);
+                    System.out.println("Función pasada al controlador de Muller");
+                } else if (path.equals(Paths.METODO_SECANTE) && controller instanceof CtrlMetodoSecante) {
+                    ((CtrlMetodoSecante) controller).setUserFunction(userFunction);
+                    System.out.println("Función pasada al controlador de Secante");
+                } else if (path.equals(Paths.METODO_NEWTON_RAPHSON) && controller instanceof CtrlMetodoNewtonRaphson) {
+                    ((CtrlMetodoNewtonRaphson) controller).setUserFunction(userFunction);
+                    System.out.println("Función pasada al controlador de Newton Raphson");
                 }
             }
         } catch (IOException e) {
